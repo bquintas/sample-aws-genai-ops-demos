@@ -8,7 +8,7 @@ This repository contains deployable code samples demonstrating practical applica
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
 | Secure Coding with Kiro Hooks | Automated security analysis in development workflows | `security/secure-coding-kiro-hooks/` |
-| Compliance Gap Analysis with AI | Automated compliance scanning and remediation guidance | `security/compliance-gap-analysis/` |
+| Compliance Gap Analysis with AI | Find compliance gaps and get remediation guidance instantly | `security/compliance-gap-analysis/` |
 
 ### Cost Optimization
 | Demo Name | Description | Repository |
@@ -19,20 +19,22 @@ This repository contains deployable code samples demonstrating practical applica
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
 | AI-Powered Incident Analysis | Automated root cause analysis using AI | `observability/incident-analysis/` |
-| GenAI Workload Observability & Anomaly Detection | AI-powered monitoring for GenAI usage patterns and anomalies | `observability/genai-workload-monitoring/` |
+| GenAI Workload Observability & Anomaly Detection | Spot GenAI usage anomalies before they become incidents | `observability/genai-workload-monitoring/` |
+| Automated Ticket Investigation with DevOps Agent | Offload New Relic and ServiceNow ticket investigations to AI | `observability/automated-ticket-investigation/` |
 
 ### Resilience
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
-| Automated Resilience Testing & Recovery | AI-driven chaos engineering and recovery automation | `resilience/automated-resilience-testing/` |
-| GenAI-Powered Capacity Management | Predictive capacity planning for GenAI workloads | `resilience/genai-capacity-management/` |
+| Automated Resilience Testing & Recovery | Test failure scenarios without the chaos using Amazon Bedrock and AWS FIS | `resilience/automated-resilience-testing/` |
+| GenAI-Powered Capacity Management | Manage GenAI capacity to prevent outages and performance degradation | `resilience/genai-capacity-management/` |
 
 ### Operations Automation
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
 | AWS Services Lifecycle Tracker | Automated monitoring of AWS service deprecations and end-of-life notices | [External Repository](https://github.com/aws-samples/sample-genai-powered-end-of-life-tracker) |
 | Model Upgrade Evaluator | Automated testing framework for AI model migrations | `operations-automation/model-upgrade-evaluator/` |
-| AI-Powered Legacy System Automation | Automate workflows on systems never built for automation | `operations-automation/legacy-system-automation/` |
+| Automated Documentation Generation | Generate comprehensive technical documentation from any codebase using AWS Transform | `operations-automation/automated-documentation-generation/` |
+| AI-Powered Legacy System Automation with Nova Act | Automate workflows on systems that were never built for automation | `operations-automation/legacy-system-automation/` |
 
 ## Repository Structure
 
@@ -45,22 +47,24 @@ cost-optimization/
 observability/
 ├── incident-analysis/
 ├── genai-workload-monitoring/
+├── automated-ticket-investigation/
 resilience/
 ├── automated-resilience-testing/
 ├── genai-capacity-management/
 operations-automation/
 ├── model-upgrade-evaluator/
+├── automated-documentation-generation/
 └── legacy-system-automation/
 ```
 
-Each demo folder contains:
+Each demo folder typically contains:
 ```
 [demo-name]/
 ├── README.md              # Deployment guide
 ├── ARCHITECTURE.md        # Technical design
-├── src/                   # Source code
-├── deployment/            # Infrastructure as Code
-└── sample-data/           # Test scenarios (if applicable)
+├── deploy-*.ps1           # PowerShell deployment script
+├── deploy-*.sh            # Bash deployment script
+└── [additional files]     # Demo-specific resources
 ```
 
 ## Getting Started

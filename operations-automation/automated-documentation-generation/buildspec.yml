@@ -1,0 +1,43 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+      nodejs: 22
+    commands:
+      - echo "Installing dependencies..."
+      - node --version && npm --version
+      - curl -fsSL https://desktop-release.transform.us-east-1.api.aws/install.sh | bash
+      - export PATH="/root/.local/bin:$PATH"
+      - atx --version
+      - pip install boto3
+
+  pre_build:
+    commands:
+      - export PATH="/root/.local/bin:$PATH"
+      - echo "Repository URL - $REPOSITORY_URL"
+      - echo "Output Bucket - $OUTPUT_BUCKET"
+      - echo "Job ID - $JOB_ID"
+      - git clone --depth 1 $REPOSITORY_URL ./target-repo
+      - ls -la ./target-repo
+
+  build:
+    commands:
+      - export PATH="/root/.local/bin:$PATH"
+      - echo "Running AWS Transform comprehensive codebase analysis..."
+      # CLI flags: -x (non-interactive), -t (trust tools), -d (skip knowledge extraction for faster processing)
+      - cd target-repo && atx custom def exec -n "AWS/early-access-comprehensive-codebase-analysis" -p "." -x -t -d
+      - echo "AWS Transform completed"
+      - ls -la
+
+  post_build:
+    commands:
+      - export PATH="/root/.local/bin:$PATH"
+      - echo "Uploading documentation to S3..."
+      - echo "Current directory contents:"
+      - ls -la
+      - echo "Documentation folder contents:"
+      - ls -la Documentation/ || echo "Documentation folder not found in current directory"
+      - aws s3 cp . s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ --recursive --exclude ".git/*"
+      - echo "Documentation uploaded to s3://$OUTPUT_BUCKET/documentation/$JOB_ID/"
