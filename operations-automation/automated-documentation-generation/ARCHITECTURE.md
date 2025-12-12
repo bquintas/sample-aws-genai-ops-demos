@@ -25,7 +25,7 @@ This demo implements automated technical documentation generation using AWS Tran
 - **Name**: `aws-transform-doc-generator`
 - **Image**: `aws/codebuild/amazonlinux2-x86_64-standard:5.0`
 - **Compute**: `BUILD_GENERAL1_MEDIUM` (4 vCPU, 7 GB RAM)
-- **Timeout**: 60 minutes
+- **Timeout**: 120 minutes
 - **Key Functions**:
   - Clone Git repositories
   - Install AWS Transform CLI
@@ -195,7 +195,7 @@ Documentation/
 
 ### Resource Limits
 - **Repository Size**: Limited by CodeBuild storage
-- **Processing Time**: 60-minute timeout (configurable)
+- **Processing Time**: 120-minute timeout (configurable)
 - **Memory**: 7 GB available for analysis
 
 ### Cost Optimization

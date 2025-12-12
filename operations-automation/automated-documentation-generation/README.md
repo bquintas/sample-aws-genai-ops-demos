@@ -4,7 +4,7 @@ Automatically generate comprehensive technical documentation from any codebase u
 
 ## Important: Processing Time
 
-The comprehensive codebase analysis typically takes **45-60 minutes** to complete, regardless of repository size. This is due to the deep AI-powered analysis that generates architecture diagrams, behavior documentation, migration guides, and technical debt reports. Plan accordingly when integrating into CI/CD pipelines.
+The comprehensive codebase analysis typically takes **45-90 minutes** to complete depending on repository size and complexity. This is due to the deep AI-powered analysis that generates architecture diagrams, behavior documentation, migration guides, and technical debt reports. The CodeBuild timeout is set to **120 minutes** to accommodate larger repositories. Plan accordingly when integrating into CI/CD pipelines.
 
 ## What This Demo Shows
 
@@ -237,7 +237,7 @@ The transformation uses `atx custom def exec` with these available flags:
 
 ### Performance Notes
 
-The **45-60 minute runtime** is inherent to comprehensive AI analysis. The transformation performs:
+The **45-90 minute runtime** is inherent to comprehensive AI analysis (larger repos may take longer). The transformation performs:
 - Deep code structure analysis
 - Architecture diagram generation
 - Behavior documentation
