@@ -4,6 +4,8 @@
 
 This demo implements automated technical documentation generation using AWS Transform's comprehensive codebase analysis capability. The solution uses CodeBuild to process Git repositories and generate comprehensive documentation including architecture analysis, security configurations, and operational procedures.
 
+All infrastructure is deployed via AWS CDK for consistent, repeatable deployments.
+
 ## Architecture Diagram
 
 ```
@@ -17,6 +19,17 @@ This demo implements automated technical documentation generation using AWS Tran
                         │  CloudWatch Logs │
                         │  (monitoring)    │
                         └──────────────────┘
+```
+
+## CDK Stack
+
+The `DocumentationGeneratorStack` deploys all required infrastructure:
+
+```python
+# infrastructure/cdk/stack.py
+- S3 Bucket: doc-gen-output-{account}-{region}
+- IAM Role: CodeBuildDocGenRole
+- CodeBuild Project: aws-transform-doc-generator
 ```
 
 ## Components
@@ -51,12 +64,12 @@ This demo implements automated technical documentation generation using AWS Tran
 
 ### 3. IAM Role
 
-**CodeBuildDocGenRole**
+**CodeBuildDocGenRole** (deployed via CDK)
 - **Trust Policy**: CodeBuild service
-- **Attached Policies**:
-  - `CloudWatchLogsFullAccess` - Build logging
-  - `AmazonS3FullAccess` - Documentation storage
-  - `TransformCustomPolicy` - AWS Transform access (`transform-custom:*`)
+- **Permissions** (least privilege via CDK grants):
+  - S3 read/write on documentation bucket
+  - CloudWatch Logs create/write for build logging
+  - `transform-custom:*` for AWS Transform access
 
 ### 4. AWS Transform Integration
 - **CLI**: Installed via `https://desktop-release.transform.us-east-1.api.aws/install.sh`
@@ -262,5 +275,15 @@ This architecture uses CodeBuild for several reasons:
 - **CI/CD native**: Easy integration with GitHub Actions, CodePipeline, GitLab CI
 - **Auto-scaling**: CodeBuild handles concurrent builds automatically
 - **Minimal maintenance**: AWS manages the build environment
+
+## Why CDK?
+
+Infrastructure is deployed via CDK for:
+
+- **Consistency**: Repeatable deployments across environments
+- **Version Control**: Infrastructure changes tracked in Git
+- **Best Practices**: CDK applies security defaults (encryption, SSL enforcement)
+- **Easy Cleanup**: Single `cdk destroy` removes all resources
+- **Type Safety**: Python CDK provides IDE support and validation
 
 This architecture provides a simple, cost-effective solution for automated documentation generation using AWS Transform's comprehensive codebase analysis capabilities.

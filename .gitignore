@@ -20,6 +20,9 @@ target/
 cdk.out/
 cdk.out*/
 
+# AI Documentation Generation outputs
+**/generated-docs-*/
+
 # Environment variables
 .env
 .env.local

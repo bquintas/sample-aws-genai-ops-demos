@@ -8,15 +8,15 @@ The comprehensive codebase analysis typically takes **45-90 minutes** to complet
 
 ## What This Demo Shows
 
-This demo provides a **CodeBuild-based AWS Transform solution** that generates comprehensive documentation from any Git repository. Simple to deploy, easy to integrate into CI/CD pipelines.
+This demo provides a **CodeBuild-based AWS Transform solution** that generates comprehensive documentation from any Git repository. Infrastructure is deployed via CDK, making it easy to deploy and integrate into CI/CD pipelines.
 
 ## Generated Documentation Includes
 
-- **System Architecture**: Component relationships, data flows, technology stack analysis
-- **Technical Specifications**: Code structure, API endpoints, configuration details  
-- **Operational Runbooks**: Deployment procedures, monitoring guides, troubleshooting
-- **Security Analysis**: Best practices, vulnerability identification, compliance mapping
-- **Technical Debt Analysis**: Actionable insights on outdated components and maintenance needs
+- System Architecture: Component relationships, data flows, technology stack analysis
+- Technical Specifications: Code structure, API endpoints, configuration details  
+- Operational Runbooks: Deployment procedures, monitoring guides, troubleshooting
+- Security Analysis: Best practices, vulnerability identification, compliance mapping
+- Technical Debt Analysis: Actionable insights on outdated components and maintenance needs
 
 ## Architecture
 
@@ -27,19 +27,22 @@ This demo provides a **CodeBuild-based AWS Transform solution** that generates c
 └─────────────────┘     └──────────────────┘     └─────────────────┘
 ```
 
-**Components:**
-- **CodeBuild Project**: Runs AWS Transform CLI in a managed build environment
-- **S3 Bucket**: Stores generated documentation
-- **IAM Role**: Minimal permissions for Transform, S3, and CloudWatch
+Components deployed via CDK:
+- CodeBuild Project: Runs AWS Transform CLI in a managed build environment
+- S3 Bucket: Stores generated documentation and buildspec
+- IAM Role: Minimal permissions for Transform, S3, and CloudWatch
 
 ## Prerequisites
 
 - AWS CLI version 2.31.13 or later (includes AWS Transform CLI)
+- Python 3.10+ (for CDK)
+- Node.js 18+ (for CDK)
 - PowerShell (Windows) or Bash (Linux/macOS)
 - AWS credentials configured with appropriate permissions
 
 ### Required AWS Permissions
 
+- CloudFormation (CDK deployment)
 - CodeBuild (create projects, start builds)
 - S3 (create buckets, read/write objects)
 - IAM (create roles and policies)
@@ -77,11 +80,22 @@ If you don't specify a repository URL, the script uses a default sample reposito
 ```
 
 The script will:
-1. Validate AWS credentials and CLI version
-2. Create S3 bucket for documentation output
-3. Create IAM role with required permissions
-4. Create CodeBuild project
-5. Start a build with the specified (or default) repository
+1. Validate AWS credentials, CLI version, Python, and Node.js
+2. Deploy CDK stack (S3 bucket, IAM role, CodeBuild project)
+3. Upload buildspec to S3
+4. Start a build with the specified (or default) repository
+
+### Deploy Infrastructure Only
+
+```powershell
+# PowerShell - deploy infrastructure without starting a build
+.\generate-docs.ps1 -DeployOnly
+```
+
+```bash
+# Bash - deploy infrastructure without starting a build
+./generate-docs.sh -d
+```
 
 ## Usage
 
@@ -92,6 +106,7 @@ The script will:
 aws codebuild start-build \
   --project-name aws-transform-doc-generator \
   --region us-east-1 \
+  --no-cli-pager \
   --environment-variables-override \
     name=REPOSITORY_URL,value=https://github.com/owner/repo \
     name=JOB_ID,value=my-job-123
@@ -101,7 +116,7 @@ aws codebuild start-build \
 
 ```bash
 # Check build status
-aws codebuild batch-get-builds --region us-east-1 --ids <build-id>
+aws codebuild batch-get-builds --region us-east-1 --ids <build-id> --no-cli-pager
 
 # Stream build logs
 aws logs tail /aws/codebuild/aws-transform-doc-generator --follow --region us-east-1
@@ -121,13 +136,11 @@ aws s3 cp s3://doc-gen-output-<account-id>-<region>/documentation/<job-id>/ ./ge
 
 The downloaded documentation will be in a `generated-docs-<job-id>` folder in your current directory.
 
-## Environment Variables
+## Environment Variables (CodeBuild)
 
-| Variable | Required | Description | Default |
-|----------|----------|-------------|---------|
-| `REPOSITORY_URL` | ✅ | Git repository URL to analyze | Serverless Digital Asset Payments sample |
-| `OUTPUT_BUCKET` | ✅ | S3 bucket for documentation | Auto-created |
-| `JOB_ID` | ❌ | Unique job identifier | `doc-gen-<timestamp>` |
+- `REPOSITORY_URL` (required): Git repository URL to analyze. Default: Serverless Digital Asset Payments sample
+- `OUTPUT_BUCKET` (required): S3 bucket for documentation. Auto-created by CDK (retrieved from stack outputs)
+- `JOB_ID` (optional): Unique job identifier. Default: `doc-gen-<timestamp>`
 
 ## CI/CD Integration Examples
 
@@ -153,6 +166,7 @@ jobs:
           aws codebuild start-build \
             --project-name aws-transform-doc-generator \
             --region us-east-1 \
+            --no-cli-pager \
             --environment-variables-override \
               name=REPOSITORY_URL,value=${{ github.server_url }}/${{ github.repository }} \
               name=JOB_ID,value=${{ github.run_id }}
@@ -169,6 +183,7 @@ phases:
         aws codebuild start-build \
           --project-name aws-transform-doc-generator \
           --region us-east-1 \
+          --no-cli-pager \
           --environment-variables-override \
             name=REPOSITORY_URL,value=$CODEBUILD_SOURCE_REPO_URL \
             name=JOB_ID,value=$CODEBUILD_BUILD_ID
@@ -184,6 +199,7 @@ generate_docs:
       aws codebuild start-build \
         --project-name aws-transform-doc-generator \
         --region us-east-1 \
+        --no-cli-pager \
         --environment-variables-override \
           name=REPOSITORY_URL,value=$CI_REPOSITORY_URL \
           name=JOB_ID,value=$CI_PIPELINE_ID
@@ -196,44 +212,35 @@ generate_docs:
 AWS Transform custom charges per **agent minute** at **$0.035/minute**. Agent minutes are only counted when the agent is actively working (planning, reasoning, analyzing, modifying code), not during builds or idle time.
 
 ### Per Documentation Job (Estimated)
-- **CodeBuild** (BUILD_GENERAL1_MEDIUM, ~50 min): ~$0.33
-- **AWS Transform analysis** (~30-60 agent min): ~$1.05 - $2.10
-- **S3 storage** (100MB documentation): ~$0.002
-- **Total per job**: ~$1.40 - $2.50
+- CodeBuild (BUILD_GENERAL1_MEDIUM, ~50 min): ~$0.33
+- AWS Transform analysis (~30-60 agent min): ~$1.05 - $2.10
+- S3 storage (100MB documentation): ~$0.002
+- Total per job: ~$1.40 - $2.50
 
 ### Monthly Estimates
-
-| Usage Level | Jobs/Month | Estimated Cost |
-|-------------|------------|----------------|
-| Light | 10 | ~$15-25/month |
-| Medium | 50 | ~$70-125/month |
-| Production | 100 | ~$140-250/month |
+- Light (10 jobs/month): ~$15-25/month
+- Medium (50 jobs/month): ~$70-125/month
+- Production (100 jobs/month): ~$140-250/month
 
 ### Cost Optimization Tips
 - Use AWS Budgets to set limits on agent minutes
 - Set up S3 lifecycle policies to archive old documentation
 - Test on representative repos first to establish baseline costs
 
-**Note**: Costs vary by codebase complexity. The same transformation can cost different amounts on different codebases.
+Note: Costs vary by codebase complexity. The same transformation can cost different amounts on different codebases.
 
 ## AWS Transform CLI Options
 
 The transformation uses `atx custom def exec` with these available flags:
-
-| Flag | Description | Used |
-|------|-------------|------|
-| `-x` / `--non-interactive` | No user prompts | ✅ |
-| `-t` / `--trust-all-tools` | Auto-trust all tools | ✅ |
-| `-d` / `--do-not-learn` | Skip knowledge extraction (faster) | ✅ |
-| `-g` / `--configuration` | Config file (YAML/JSON) | ❌ |
-| `--tv` / `--transformation-version` | Use specific version | ❌ |
+- `-x` / `--non-interactive`: No user prompts (used)
+- `-t` / `--trust-all-tools`: Auto-trust all tools (used)
+- `-d` / `--do-not-learn`: Skip knowledge extraction, faster (used)
+- `-g` / `--configuration`: Config file (YAML/JSON)
+- `--tv` / `--transformation-version`: Use specific version
 
 ### Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `ATX_SHELL_TIMEOUT` | Override shell timeout (default 900s) |
-| `ATX_DISABLE_UPDATE_CHECK` | Skip update checks at startup |
+- `ATX_SHELL_TIMEOUT`: Override shell timeout (default 900s)
+- `ATX_DISABLE_UPDATE_CHECK`: Skip update checks at startup
 
 ### Performance Notes
 
@@ -244,14 +251,14 @@ The **45-90 minute runtime** is inherent to comprehensive AI analysis (larger re
 - Migration guide creation
 - Technical debt analysis
 
-**There is no "fast mode"** - this is the nature of comprehensive AI-powered analysis. The wall-clock time includes both agent processing and local operations.
+**There is no "fast mode"** - this is the nature of comprehensive AI-powered analysis.
 
 ### Tips for Development/Testing
 
-1. **Use smaller test repos** during development/testing
-2. **Add `-d` flag** to skip knowledge extraction (already enabled)
-3. **Set `ATX_DISABLE_UPDATE_CHECK=true`** to skip update checks
-4. **Plan for async workflows** - trigger builds and check results later
+1. Use smaller test repos during development/testing
+2. Add `-d` flag to skip knowledge extraction (already enabled)
+3. Set `ATX_DISABLE_UPDATE_CHECK=true` to skip update checks
+4. Plan for async workflows - trigger builds and check results later
 
 ## Buildspec Configuration
 
@@ -277,6 +284,11 @@ See `buildspec.yml` for the complete configuration.
 
 ## Troubleshooting
 
+### CDK Deployment Fails
+- Ensure Python 3.10+ and Node.js 18+ are installed
+- Check that CDK is bootstrapped: `cdk bootstrap aws://<account>/<region>`
+- Verify AWS credentials have CloudFormation permissions
+
 ### Build Fails During Install Phase
 - Ensure AWS CLI version 2.31.13+ is available
 - Check that the CodeBuild service role has internet access
@@ -297,37 +309,55 @@ See `buildspec.yml` for the complete configuration.
 aws logs get-log-events \
   --log-group-name /aws/codebuild/aws-transform-doc-generator \
   --log-stream-name <build-id> \
-  --region us-east-1
+  --region us-east-1 \
+  --no-cli-pager
 
 # Check IAM role permissions
-aws iam get-role --role-name CodeBuildDocGenRole
-aws iam list-attached-role-policies --role-name CodeBuildDocGenRole
+aws iam get-role --role-name CodeBuildDocGenRole --no-cli-pager
 ```
 
 ## Cleanup
 
-Remove all resources:
+Remove all resources using CDK:
 
 ```powershell
-# Delete CodeBuild project
-aws codebuild delete-project --name aws-transform-doc-generator --region us-east-1
-
-# Delete IAM role (detach policies first)
-aws iam detach-role-policy --role-name CodeBuildDocGenRole --policy-arn arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
-aws iam detach-role-policy --role-name CodeBuildDocGenRole --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
-aws iam delete-role-policy --role-name CodeBuildDocGenRole --policy-name TransformCustomPolicy
-aws iam delete-role --role-name CodeBuildDocGenRole
-
-# Delete S3 bucket (empty first)
-aws s3 rm s3://doc-gen-output-<account-id>-<region> --recursive
-aws s3api delete-bucket --bucket doc-gen-output-<account-id>-<region>
+# PowerShell (Windows)
+cd operations-automation/automated-documentation-generation/infrastructure/cdk
+npx -y cdk destroy --no-cli-pager
 ```
 
-## Files
+```bash
+# Bash (Linux/macOS)
+cd operations-automation/automated-documentation-generation/infrastructure/cdk
+npx -y cdk destroy --no-cli-pager
+```
 
-| File | Description |
-|------|-------------|
-| `generate-docs.ps1` | PowerShell deployment script |
-| `generate-docs.sh` | Bash deployment script |
-| `buildspec.yml` | CodeBuild build specification |
-| `ARCHITECTURE.md` | Technical architecture details |
+## Project Structure
+
+```
+automated-documentation-generation/
+├── generate-docs.ps1              # PowerShell deployment script
+├── generate-docs.sh               # Bash deployment script
+├── buildspec.yml                  # CodeBuild build specification
+├── README.md                      # This file
+├── ARCHITECTURE.md                # Technical architecture details
+└── infrastructure/
+    └── cdk/
+        ├── app.py                 # CDK app entry point
+        ├── stack.py               # CDK stack definition
+        ├── cdk.json               # CDK configuration
+        └── requirements.txt       # Python dependencies
+```
+
+### Shared Scripts
+
+This demo uses the shared scripts for prerequisite validation and CDK deployment:
+
+```
+shared/
+└── scripts/
+    ├── check-prerequisites.ps1    # Shared prereq validation (Windows)
+    ├── check-prerequisites.sh     # Shared prereq validation (Linux/macOS)
+    ├── deploy-cdk.ps1             # Shared CDK deployment (Windows)
+    └── deploy-cdk.sh              # Shared CDK deployment (Linux/macOS)
+```

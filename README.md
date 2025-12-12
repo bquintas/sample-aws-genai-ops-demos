@@ -1,40 +1,40 @@
 # AWS GenAI Operations Demos
 
-This repository contains deployable code samples demonstrating practical applications of generative AI for cloud operations. Each demo provides working implementations that can be deployed in your AWS environment.
+This repository contains deployable code samples demonstrating practical applications of generative AI for cloud operations, spanning a wide range of AWS services and use cases. Each demo provides working implementations that can be deployed in your AWS environment.
 
 ## Available Demos
 
 ### Security
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
-| Secure Coding with Kiro Hooks | Automated security analysis in development workflows | [security/secure-coding-kiro-hooks/](security/secure-coding-kiro-hooks/README.md) |
-| Compliance Gap Analysis with AI | Find compliance gaps and get remediation guidance instantly | [security/compliance-gap-analysis/](security/compliance-gap-analysis/README.md) |
+| Secure Coding with Kiro Hooks | Automated security analysis in development workflows | security/secure-coding-kiro-hooks/ |
+| Compliance Gap Analysis with AI | Find compliance gaps and get remediation guidance instantly | security/compliance-gap-analysis/ |
 
 ### Cost Optimization
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
-| GenAI Cost Optimization MCP Server | Proactive cost analysis for AI workloads | [cost-optimization/genai-cost-optimization-mcp/](cost-optimization/genai-cost-optimization-mcp/README.md) |
+| GenAI Cost Optimization MCP Server | Proactive cost analysis for AI workloads | cost-optimization/genai-cost-optimization-mcp/ |
 
 ### Observability
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
-| AI-Powered Incident Analysis | Automated root cause analysis using AI | [observability/incident-analysis/](observability/incident-analysis/README.md) |
-| GenAI Workload Observability & Anomaly Detection | Spot GenAI usage anomalies before they become incidents | [observability/genai-workload-monitoring/](observability/genai-workload-monitoring/README.md) |
-| Automated Ticket Investigation with DevOps Agent | Offload New Relic and ServiceNow ticket investigations to AI | [observability/automated-ticket-investigation/](observability/automated-ticket-investigation/README.md) |
+| AI-Powered Incident Analysis | Automated root cause analysis using AI | observability/incident-analysis/ |
+| GenAI Workload Observability & Anomaly Detection | Spot GenAI usage anomalies before they become incidents | observability/genai-workload-monitoring/ |
+| Automated Ticket Investigation with DevOps Agent | Offload New Relic and ServiceNow ticket investigations to AI | observability/automated-ticket-investigation/ |
 
 ### Resilience
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
-| Automated Resilience Testing & Recovery | Test failure scenarios without the chaos using Amazon Bedrock and AWS FIS | [resilience/automated-resilience-testing/](resilience/automated-resilience-testing/README.md) |
-| GenAI-Powered Capacity Management | Manage GenAI capacity to prevent outages and performance degradation | [resilience/genai-capacity-management/](resilience/genai-capacity-management/README.md) |
+| Automated Resilience Testing & Recovery | Test failure scenarios without the chaos using Amazon Bedrock and AWS FIS | resilience/automated-resilience-testing/ |
+| GenAI-Powered Capacity Management | Manage GenAI capacity to prevent outages and performance degradation | resilience/genai-capacity-management/ |
 
 ### Operations Automation
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
 | AWS Services Lifecycle Tracker | Automated monitoring of AWS service deprecations and end-of-life notices | [External Repository](https://github.com/aws-samples/sample-genai-powered-end-of-life-tracker) |
-| Model Upgrade Evaluator | Automated testing framework for AI model migrations | [operations-automation/model-upgrade-evaluator/](operations-automation/model-upgrade-evaluator/README.md) |
-| Automated Documentation Generation | Generate comprehensive technical documentation from any codebase using AWS Transform | [operations-automation/automated-documentation-generation/](operations-automation/automated-documentation-generation/README.md) |
-| AI-Powered Legacy System Automation with Nova Act | Automate workflows on systems that were never built for automation | [operations-automation/legacy-system-automation/](operations-automation/legacy-system-automation/README.md) |
+| Model Upgrade Evaluator | Automated testing framework for AI model migrations | operations-automation/model-upgrade-evaluator/ |
+| Automated Documentation Generation | Generate comprehensive technical documentation from any codebase using AWS Transform | [operations-automation/ai-documentation-generation/](operations-automation/ai-documentation-generation/README.md) |
+| AI-Powered Legacy System Automation | Automate workflows on legacy systems using Nova Act with AgentCore Browser Tool | [operations-automation/ai-legacy-system-browser-automation/](operations-automation/ai-legacy-system-browser-automation/README.md) |
 
 ## Repository Structure
 
@@ -53,8 +53,8 @@ resilience/
 ├── genai-capacity-management/
 operations-automation/
 ├── model-upgrade-evaluator/
-├── automated-documentation-generation/
-└── legacy-system-automation/
+├── ai-documentation-generation/
+└── ai-legacy-system-browser-automation/
 ```
 
 Each demo folder typically contains:
@@ -87,6 +87,7 @@ Each demo folder typically contains:
 - **Amazon Bedrock** - Foundation model access and management
 - **Amazon Nova Models** - Latest generation AI models
 - **Amazon Bedrock AgentCore** - Multi-step AI workflow orchestration
+- **AWS Transform** - AI-powered code transformation and documentation generation
 
 ### Integration Frameworks
 - **Model Context Protocol (MCP) Servers** - Standardized tool integration

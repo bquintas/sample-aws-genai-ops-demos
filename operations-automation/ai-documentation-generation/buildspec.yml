@@ -26,7 +26,8 @@ phases:
     commands:
       - export PATH="/root/.local/bin:$PATH"
       - echo "Running AWS Transform comprehensive codebase analysis..."
-      # CLI flags: -x (non-interactive), -t (trust tools), -d (skip knowledge extraction for faster processing)
+      # Change to target-repo and run Transform
+      # NOTE: cd persists across commands in CodeBuild, affecting post_build too
       - cd target-repo && atx custom def exec -n "AWS/early-access-comprehensive-codebase-analysis" -p "." -x -t -d
       - echo "AWS Transform completed"
       - ls -la
@@ -35,7 +36,5 @@ phases:
     commands:
       - export PATH="/root/.local/bin:$PATH"
       - echo "Uploading documentation to S3..."
-      - echo "Documentation folder contents:"
-      - ls -la target-repo/Documentation/ || echo "Documentation folder not found"
-      - aws s3 cp target-repo/Documentation/ s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ --recursive
+      - aws s3 cp Documentation/ s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ --recursive
       - echo "Documentation uploaded to s3://$OUTPUT_BUCKET/documentation/$JOB_ID/"
