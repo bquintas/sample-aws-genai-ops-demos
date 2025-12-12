@@ -21,21 +21,39 @@ AgentCore Browser Tool provides:
 ## Architecture
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Legacy System  │◀───▶│  AgentCore       │◀───▶│  Python Script  │
-│  (Next-Dot)     │     │  Browser Tool    │     │  + Nova Act     │
-└─────────────────┘     │  (Cloud Chrome)  │     │  (Local)        │
-                        └────────┬─────────┘     └─────────────────┘
-                                 │
-                        ┌────────▼─────────┐
-                        │  AWS Console     │
-                        │  (Live View)     │
-                        └──────────────────┘
-                                 │
-                        ┌────────▼─────────┐
-                        │  S3 Bucket       │
-                        │  (Recordings)    │
-                        └──────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Local Environment                               │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  Python Orchestrator                                                  │  │
+│  │  • Coordinates automation workflow                                    │  │
+│  │  • Sends natural language instructions to Nova Act                    │  │
+│  └──────────────────────────────┬────────────────────────────────────────┘  │
+└─────────────────────────────────┼───────────────────────────────────────────┘
+                                  │ AWS API
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              AWS Cloud                                       │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  Nova Act Model                                                       │  │
+│  │  • Interprets natural language instructions                           │  │
+│  │  • Plans and executes browser actions                                 │  │
+│  └──────────────────────────────┬────────────────────────────────────────┘  │
+│                                 │ CDP (Chrome DevTools Protocol)             │
+│                                 ▼                                            │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  AgentCore Browser Tool (Managed Chrome)                              │  │
+│  │  • Cloud browser execution                                            │  │
+│  │  • Session management & recording ──────────▶ S3 Bucket (Recordings)  │  │
+│  │  • Live view streaming ─────────────────────▶ AWS Console (Live View) │  │
+│  └──────────────────────────────┬────────────────────────────────────────┘  │
+│                                 │ HTTPS                                      │
+└─────────────────────────────────┼───────────────────────────────────────────┘
+                                  ▼
+                        ┌─────────────────┐
+                        │  Legacy System  │
+                        │  (Next-Dot)     │
+                        └─────────────────┘
 ```
 
 **Components:**
@@ -100,13 +118,13 @@ Your IAM user/role needs permissions for CDK deployment, Nova Act, and AgentCore
 
 ```powershell
 # PowerShell (Windows)
-cd operations-automation/legacy-system-automation-agentcore
+cd operations-automation/ai-legacy-system-browser-automation
 .\run-demo.ps1
 ```
 
 ```bash
 # Bash (Linux/macOS)
-cd operations-automation/legacy-system-automation-agentcore
+cd operations-automation/ai-legacy-system-browser-automation
 ./run-demo.sh
 ```
 
@@ -237,6 +255,7 @@ s3://legacy-automation-recordings-{account-id}/browser-recordings/
       └── ...
 ```
 
+
 ### Replay Recordings
 
 1. Go to AgentCore Browser Console
@@ -283,7 +302,7 @@ s3://legacy-automation-recordings-{account-id}/browser-recordings/
 ## Files
 
 ```
-legacy-system-automation-agentcore/
+ai-legacy-system-browser-automation/
 ├── run-demo.ps1                    # One-click demo runner (Windows)
 ├── run-demo.sh                     # One-click demo runner (Linux/macOS)
 ├── create_ticket_agentcore.py      # Main demo script

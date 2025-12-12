@@ -55,13 +55,13 @@ Components deployed via CDK:
 
 ```powershell
 # PowerShell (Windows)
-cd operations-automation/automated-documentation-generation
+cd operations-automation/ai-documentation-generation
 .\generate-docs.ps1 -RepositoryUrl "https://github.com/owner/repo"
 ```
 
 ```bash
 # Bash (Linux/macOS)
-cd operations-automation/automated-documentation-generation
+cd operations-automation/ai-documentation-generation
 ./generate-docs.sh -r "https://github.com/owner/repo"
 ```
 
@@ -322,20 +322,20 @@ Remove all resources using CDK:
 
 ```powershell
 # PowerShell (Windows)
-cd operations-automation/automated-documentation-generation/infrastructure/cdk
+cd operations-automation/ai-documentation-generation/infrastructure/cdk
 npx -y cdk destroy --no-cli-pager
 ```
 
 ```bash
 # Bash (Linux/macOS)
-cd operations-automation/automated-documentation-generation/infrastructure/cdk
+cd operations-automation/ai-documentation-generation/infrastructure/cdk
 npx -y cdk destroy --no-cli-pager
 ```
 
 ## Project Structure
 
 ```
-automated-documentation-generation/
+ai-documentation-generation/
 ├── generate-docs.ps1              # PowerShell deployment script
 ├── generate-docs.sh               # Bash deployment script
 ├── buildspec.yml                  # CodeBuild build specification
