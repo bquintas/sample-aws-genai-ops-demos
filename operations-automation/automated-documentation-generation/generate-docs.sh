@@ -6,15 +6,15 @@
 # comprehensive documentation from any Git repository. Simple and cost-effective.
 #
 # Usage:
-#   ./deploy-codebuild.sh
-#   ./deploy-codebuild.sh -r "https://github.com/owner/repo"
-#   ./deploy-codebuild.sh -g us-west-2
+#   ./generate-docs.sh
+#   ./generate-docs.sh -r "https://github.com/owner/repo"
+#   ./generate-docs.sh -g us-west-2
 #
 
 set -e
 
 # Default values
-DEFAULT_REPO="https://github.com/aws-samples/aws-device-farm-sample-web-app-using-appium-python"
+DEFAULT_REPO="https://github.com/aws-samples/sample-serverless-digital-asset-payments"
 REPOSITORY_URL=""
 OUTPUT_BUCKET="${OUTPUT_BUCKET:-}"
 REGION="${AWS_REGION:-us-east-1}"
@@ -42,9 +42,11 @@ echo ""
 
 # Check if repository URL was provided
 if [ -z "$REPOSITORY_URL" ]; then
-  echo "No repository URL specified. Using default sample repository."
+  echo "No repository URL specified. Documentation will be generated based on the default sample repository:"
+  echo "  $DEFAULT_REPO"
+  echo ""
   echo "To analyze your own repository, run:"
-  echo "  ./deploy-codebuild.sh -r \"https://github.com/owner/repo\""
+  echo "  ./generate-docs.sh -r \"https://github.com/owner/repo\""
   echo ""
   REPOSITORY_URL="$DEFAULT_REPO"
 fi
@@ -227,6 +229,74 @@ echo ""
 echo "Check generated documentation:"
 echo "  aws s3 ls s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ --recursive"
 echo ""
-echo "Generate docs for another repository:"
+echo "Currently analyzing:"
+echo "  $REPOSITORY_URL"
+echo ""
+echo "Generate docs for a different repository:"
 echo "  aws codebuild start-build --project-name $PROJECT_NAME --region $REGION \\"
 echo "    --environment-variables-override name=REPOSITORY_URL,value=https://github.com/owner/repo"
+
+# Offer to wait and download documentation
+echo ""
+echo "=== Download Documentation ==="
+echo "The build typically takes 45-60 minutes to complete."
+echo ""
+read -p "Would you like to wait for the build to complete and download the documentation? (y/n) " WAIT_CHOICE
+
+if [ "$WAIT_CHOICE" = "y" ] || [ "$WAIT_CHOICE" = "Y" ]; then
+  echo ""
+  echo "Waiting for build to complete..."
+  echo "You can press Ctrl+C to cancel and download later using:"
+  echo "  aws s3 cp s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ ./generated-docs --recursive"
+  echo ""
+  
+  # Poll for build completion
+  BUILD_COMPLETE=false
+  BUILD_STATUS=""
+  while [ "$BUILD_COMPLETE" = "false" ]; do
+    sleep 30
+    BUILD_INFO=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --region "$REGION" \
+      --query 'builds[0].buildStatus' --output text 2>/dev/null || echo "UNKNOWN")
+    
+    if [ "$BUILD_INFO" = "SUCCEEDED" ]; then
+      BUILD_COMPLETE=true
+      BUILD_STATUS="SUCCEEDED"
+      echo "Build completed successfully!"
+    elif [ "$BUILD_INFO" = "FAILED" ] || [ "$BUILD_INFO" = "FAULT" ] || [ "$BUILD_INFO" = "STOPPED" ] || [ "$BUILD_INFO" = "TIMED_OUT" ]; then
+      BUILD_COMPLETE=true
+      BUILD_STATUS="$BUILD_INFO"
+      echo "Build ended with status: $BUILD_INFO"
+    else
+      echo "  Build in progress... (Status: $BUILD_INFO)"
+    fi
+  done
+  
+  if [ "$BUILD_STATUS" = "SUCCEEDED" ]; then
+    # Create local directory for documentation
+    LOCAL_DOCS_DIR="./generated-docs-$JOB_ID"
+    echo ""
+    echo "Downloading documentation to: $LOCAL_DOCS_DIR"
+    
+    mkdir -p "$LOCAL_DOCS_DIR"
+    aws s3 cp "s3://$OUTPUT_BUCKET/documentation/$JOB_ID/" "$LOCAL_DOCS_DIR" --recursive --region "$REGION"
+    
+    if [ $? -eq 0 ]; then
+      echo ""
+      echo "Documentation downloaded successfully!"
+      echo "Location: $LOCAL_DOCS_DIR"
+      
+      # List downloaded files
+      echo ""
+      echo "Downloaded files:"
+      find "$LOCAL_DOCS_DIR" -type f | while read -r file; do
+        echo "  $file"
+      done
+    else
+      echo "Failed to download documentation"
+    fi
+  fi
+else
+  echo ""
+  echo "To download documentation later (after build completes):"
+  echo "  aws s3 cp s3://$OUTPUT_BUCKET/documentation/$JOB_ID/ ./generated-docs --recursive"
+fi

@@ -17,9 +17,9 @@
     AWS region for deployment (default: us-east-1)
 
 .EXAMPLE
-    .\deploy-codebuild.ps1
-    .\deploy-codebuild.ps1 -RepositoryUrl "https://github.com/owner/repo"
-    .\deploy-codebuild.ps1 -Region "us-west-2"
+    .\generate-docs.ps1
+    .\generate-docs.ps1 -RepositoryUrl "https://github.com/owner/repo"
+    .\generate-docs.ps1 -Region "us-west-2"
 #>
 
 param(
@@ -28,7 +28,7 @@ param(
     [string]$Region = "us-east-1"
 )
 
-$defaultRepo = "https://github.com/aws-samples/aws-device-farm-sample-web-app-using-appium-python"
+$defaultRepo = "https://github.com/aws-samples/sample-serverless-digital-asset-payments"
 
 Write-Host "=== AWS Transform Documentation Generator (CodeBuild Version) ===" -ForegroundColor Cyan
 Write-Host "Generates comprehensive documentation from any Git repository" -ForegroundColor Green
@@ -36,9 +36,11 @@ Write-Host ""
 
 # Check if repository URL was provided
 if ([string]::IsNullOrEmpty($RepositoryUrl)) {
-    Write-Host "No repository URL specified. Using default sample repository." -ForegroundColor Yellow
+    Write-Host "No repository URL specified. Documentation will be generated based on the default sample repository:" -ForegroundColor Yellow
+    Write-Host "  $defaultRepo" -ForegroundColor White
+    Write-Host ""
     Write-Host "To analyze your own repository, run:" -ForegroundColor Gray
-    Write-Host "  .\deploy-codebuild.ps1 -RepositoryUrl `"https://github.com/owner/repo`"" -ForegroundColor White
+    Write-Host "  .\generate-docs.ps1 -RepositoryUrl `"https://github.com/owner/repo`"" -ForegroundColor White
     Write-Host ""
     $RepositoryUrl = $defaultRepo
 }
@@ -239,6 +241,75 @@ Write-Host ""
 Write-Host "Check generated documentation:" -ForegroundColor Yellow
 Write-Host "  aws s3 ls s3://$OutputBucket/documentation/$jobId/ --recursive" -ForegroundColor Gray
 Write-Host ""
-Write-Host "Generate docs for another repository:" -ForegroundColor Yellow
+Write-Host "Currently analyzing:" -ForegroundColor Yellow
+Write-Host "  $RepositoryUrl" -ForegroundColor White
+Write-Host ""
+Write-Host "Generate docs for a different repository:" -ForegroundColor Yellow
 Write-Host "  aws codebuild start-build --project-name $projectName --region $Region ``" -ForegroundColor Gray
 Write-Host "    --environment-variables-override name=REPOSITORY_URL,value=https://github.com/owner/repo" -ForegroundColor Gray
+
+# Offer to wait and download documentation
+Write-Host ""
+Write-Host "=== Download Documentation ===" -ForegroundColor Cyan
+Write-Host "The build typically takes 45-60 minutes to complete." -ForegroundColor Yellow
+Write-Host ""
+$waitChoice = Read-Host "Would you like to wait for the build to complete and download the documentation? (y/n)"
+
+if ($waitChoice -eq "y" -or $waitChoice -eq "Y") {
+    Write-Host ""
+    Write-Host "Waiting for build to complete..." -ForegroundColor Yellow
+    Write-Host "You can press Ctrl+C to cancel and download later using:" -ForegroundColor Gray
+    Write-Host "  aws s3 cp s3://$OutputBucket/documentation/$jobId/ ./generated-docs --recursive" -ForegroundColor Gray
+    Write-Host ""
+    
+    # Poll for build completion
+    $buildComplete = $false
+    $buildStatus = ""
+    $startTime = Get-Date
+    while (-not $buildComplete) {
+        Start-Sleep -Seconds 30
+        $buildInfo = aws codebuild batch-get-builds --ids $buildResult --region $Region --query 'builds[0].buildStatus' --output text 2>$null
+        
+        if ($buildInfo -eq "SUCCEEDED") {
+            $buildComplete = $true
+            $buildStatus = "SUCCEEDED"
+            Write-Host "Build completed successfully!" -ForegroundColor Green
+        } elseif ($buildInfo -eq "FAILED" -or $buildInfo -eq "FAULT" -or $buildInfo -eq "STOPPED" -or $buildInfo -eq "TIMED_OUT") {
+            $buildComplete = $true
+            $buildStatus = $buildInfo
+            Write-Host "Build ended with status: $buildInfo" -ForegroundColor Red
+        } else {
+            $elapsed = [math]::Round(((Get-Date) - $startTime).TotalMinutes, 1)
+            Write-Host "  Build in progress... (Status: $buildInfo, Elapsed: $elapsed min)" -ForegroundColor Gray
+        }
+    }
+    
+    if ($buildStatus -eq "SUCCEEDED") {
+        # Create local directory for documentation
+        $localDocsDir = ".\generated-docs-$jobId"
+        Write-Host ""
+        Write-Host "Downloading documentation to: $localDocsDir" -ForegroundColor Yellow
+        
+        New-Item -ItemType Directory -Path $localDocsDir -Force | Out-Null
+        aws s3 cp "s3://$OutputBucket/documentation/$jobId/" $localDocsDir --recursive --region $Region
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host ""
+            Write-Host "Documentation downloaded successfully!" -ForegroundColor Green
+            Write-Host "Location: $localDocsDir" -ForegroundColor White
+            
+            # List downloaded files
+            Write-Host ""
+            Write-Host "Downloaded files:" -ForegroundColor Yellow
+            Get-ChildItem -Path $localDocsDir -Recurse -File | ForEach-Object {
+                Write-Host "  $($_.FullName)" -ForegroundColor Gray
+            }
+        } else {
+            Write-Host "Failed to download documentation" -ForegroundColor Red
+        }
+    }
+} else {
+    Write-Host ""
+    Write-Host "To download documentation later (after build completes):" -ForegroundColor Yellow
+    Write-Host "  aws s3 cp s3://$OutputBucket/documentation/$jobId/ ./generated-docs --recursive" -ForegroundColor Gray
+}

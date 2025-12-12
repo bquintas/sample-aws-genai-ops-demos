@@ -53,13 +53,13 @@ This demo provides a **CodeBuild-based AWS Transform solution** that generates c
 ```powershell
 # PowerShell (Windows)
 cd operations-automation/automated-documentation-generation
-.\deploy-codebuild.ps1 -RepositoryUrl "https://github.com/owner/repo"
+.\generate-docs.ps1 -RepositoryUrl "https://github.com/owner/repo"
 ```
 
 ```bash
 # Bash (Linux/macOS)
 cd operations-automation/automated-documentation-generation
-./deploy-codebuild.sh -r "https://github.com/owner/repo"
+./generate-docs.sh -r "https://github.com/owner/repo"
 ```
 
 ### Deploy with Default Sample Repository
@@ -68,12 +68,12 @@ If you don't specify a repository URL, the script uses a default sample reposito
 
 ```powershell
 # PowerShell - uses default sample repo
-.\deploy-codebuild.ps1
+.\generate-docs.ps1
 ```
 
 ```bash
 # Bash - uses default sample repo
-./deploy-codebuild.sh
+./generate-docs.sh
 ```
 
 The script will:
@@ -109,19 +109,23 @@ aws logs tail /aws/codebuild/aws-transform-doc-generator --follow --region us-ea
 
 ### Retrieve Generated Documentation
 
+The deployment script offers to wait for the build to complete and automatically download the documentation to your local machine. If you choose not to wait, you can download manually:
+
 ```bash
 # List generated documentation
 aws s3 ls s3://doc-gen-output-<account-id>-<region>/documentation/ --recursive
 
-# Download documentation
-aws s3 cp s3://doc-gen-output-<account-id>-<region>/documentation/<job-id>/ ./docs --recursive
+# Download documentation to local folder
+aws s3 cp s3://doc-gen-output-<account-id>-<region>/documentation/<job-id>/ ./generated-docs --recursive
 ```
+
+The downloaded documentation will be in a `generated-docs-<job-id>` folder in your current directory.
 
 ## Environment Variables
 
 | Variable | Required | Description | Default |
 |----------|----------|-------------|---------|
-| `REPOSITORY_URL` | ✅ | Git repository URL to analyze | AWS Device Farm sample |
+| `REPOSITORY_URL` | ✅ | Git repository URL to analyze | Serverless Digital Asset Payments sample |
 | `OUTPUT_BUCKET` | ✅ | S3 bucket for documentation | Auto-created |
 | `JOB_ID` | ❌ | Unique job identifier | `doc-gen-<timestamp>` |
 
@@ -190,14 +194,6 @@ generate_docs:
 ### AWS Transform Custom Pricing
 
 AWS Transform custom charges per **agent minute** at **$0.035/minute**. Agent minutes are only counted when the agent is actively working (planning, reasoning, analyzing, modifying code), not during builds or idle time.
-
-Reference pricing from AWS documentation:
-
-| Transformation Type | Codebase Size | Agent Minutes | Cost |
-|---------------------|---------------|---------------|------|
-| SDK upgrades (Node.js) | ~3,000 LOC | ~20 min | $0.70 |
-| Java version upgrade | ~17,000 LOC | ~72 min | $2.52 |
-| Python runtime upgrade | ~4,000 LOC | ~37 min | $1.30 |
 
 ### Per Documentation Job (Estimated)
 - **CodeBuild** (BUILD_GENERAL1_MEDIUM, ~50 min): ~$0.33
@@ -331,7 +327,7 @@ aws s3api delete-bucket --bucket doc-gen-output-<account-id>-<region>
 
 | File | Description |
 |------|-------------|
-| `deploy-codebuild.ps1` | PowerShell deployment script |
-| `deploy-codebuild.sh` | Bash deployment script |
+| `generate-docs.ps1` | PowerShell deployment script |
+| `generate-docs.sh` | Bash deployment script |
 | `buildspec.yml` | CodeBuild build specification |
 | `ARCHITECTURE.md` | Technical architecture details |
