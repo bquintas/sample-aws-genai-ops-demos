@@ -158,22 +158,29 @@ export const invokeAgent = async (request: InvokeAgentRequest): Promise<InvokeAg
     });
     
     console.log('Invoking AgentCore:', { agentRuntimeArn, region });
+    console.log('🆔 AgentCore SESSION ID:', request.sessionId);
+    console.log('📝 AgentCore PROMPT:', request.prompt);
     
     const command = new InvokeAgentRuntimeCommand({
       agentRuntimeArn,
-      mcpSessionId: request.sessionId,
+      runtimeSessionId: request.sessionId, // Correct parameter name from AWS samples
       payload: JSON.stringify({
         prompt: request.prompt
       }),
+    });
+    
+    console.log('📋 AgentCore COMMAND:', {
+      agentRuntimeArn,
+      runtimeSessionId: request.sessionId,
+      payload: JSON.stringify({ prompt: request.prompt })
     });
 
     const response = await client.send(command);
     console.log('AgentCore response:', response);
 
-    // Parse response - SDK returns response.response as a stream
     let responseText = '';
+    
     if (response.response) {
-      // Transform stream to string
       const payloadString = await response.response.transformToString();
       console.log('Raw payload:', payloadString);
       

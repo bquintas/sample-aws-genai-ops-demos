@@ -192,19 +192,51 @@ async def get_or_create_memory():
     """Get or create AgentCore Memory for session management"""
     global MEMORY_ID
     
+    print(f"DEBUG: get_or_create_memory called, current MEMORY_ID: {MEMORY_ID}")
+    
     if MEMORY_ID is None:
+        print("DEBUG: Looking for existing AgentCore Memory...")
         try:
-            # Create memory for password reset sessions
-            memory_response = await memory_client.create_memory(
-                name="password-reset-sessions",
-                description="Session memory for password reset conversations"
-            )
-            MEMORY_ID = memory_response['memoryId']
-            print(f"Created AgentCore Memory: {MEMORY_ID}")
+            # First, try to list existing memories to see if we already have one
+            memories = memory_client.list_memories()
+            print(f"DEBUG: Found {len(memories)} existing memories")
+            print(f"DEBUG: Memories response type: {type(memories)}")
+            print(f"DEBUG: Memories content: {memories}")
+            
+            # Look for our memory by name (check both 'name' and 'id' fields)
+            for memory in memories:
+                memory_name = memory.get('name', '')
+                memory_id = memory.get('id', '')
+                memory_status = memory.get('status', '')
+                print(f"DEBUG: Checking memory - name: '{memory_name}', id: '{memory_id}', status: '{memory_status}'")
+                
+                # Check if this is our memory (name starts with our prefix) AND it's active
+                if ((memory_name == 'password_reset_sessions' or 
+                     memory_id.startswith('password_reset_sessions')) and 
+                    memory_status == 'ACTIVE'):
+                    MEMORY_ID = memory.get('id')
+                    print(f"DEBUG: Found existing ACTIVE AgentCore Memory: {MEMORY_ID}")
+                    break
+            
+            # If not found, create new one
+            if MEMORY_ID is None:
+                print("DEBUG: Creating new AgentCore Memory...")
+                memory_response = memory_client.create_memory(
+                    name="password_reset_sessions",  # Fixed: no hyphens allowed
+                    description="Session memory for password reset conversations"
+                )
+                MEMORY_ID = memory_response.get('id')
+                print(f"DEBUG: Successfully created AgentCore Memory: {MEMORY_ID}")
+                print(f"DEBUG: Full memory response: {memory_response}")
+                
         except Exception as e:
-            print(f"Failed to create AgentCore Memory: {e}")
-            # Fall back to simple session management
-            return None
+            print(f"ERROR: Failed to get/create AgentCore Memory: {e}")
+            print(f"ERROR: Exception type: {type(e)}")
+            import traceback
+            print(f"ERROR: Full traceback: {traceback.format_exc()}")
+            raise e  # Don't fall back - must work
+    else:
+        print(f"DEBUG: Using existing AgentCore Memory: {MEMORY_ID}")
     
     return MEMORY_ID
 
@@ -231,78 +263,63 @@ async def agent_invocation(payload, context=None):
 
     # Get session ID from AgentCore context
     session_id = getattr(context, 'session_id', None) if context else None
-    if not session_id:
+    runtime_session_id = getattr(context, 'runtime_session_id', None) if context else None
+    
+    print(f"DEBUG SESSION: context={context}")
+    print(f"DEBUG SESSION: session_id from context={session_id}")
+    print(f"DEBUG SESSION: runtime_session_id from context={runtime_session_id}")
+    print(f"DEBUG SESSION: context attributes={dir(context) if context else 'None'}")
+    
+    # Try to get the session ID that was passed from frontend
+    if runtime_session_id:
+        session_id = runtime_session_id
+    elif session_id:
+        session_id = session_id
+    else:
         session_id = "default"
     
+    print(f"DEBUG SESSION: Final session_id being used: {session_id}")
     print(f"Processing message for session: {session_id}")
 
-    # Try to use AgentCore Memory, fall back to simple sessions if needed
+    # Get AgentCore Memory - MUST work, no fallback
+    print(f"DEBUG: Starting agent invocation for session: {session_id}")
     memory_id = await get_or_create_memory()
-    session_agent = None
+    print(f"DEBUG: Got memory_id: {memory_id}")
     
-    if memory_id:
-        # Use AgentCore Memory for session management
-        try:
-            print(f"Using AgentCore Memory for session management")
-            
-            # Configure AgentCore Memory
-            memory_config = AgentCoreMemoryConfig(
-                memory_id=memory_id,
-                session_id=session_id,
-                actor_id=session_id,  # Use session_id as actor_id for simplicity
-                retrieval_config={
-                    f"/conversations/{session_id}": RetrievalConfig(
-                        top_k=10,
-                        relevance_score=0.2
-                    )
-                }
+    # Configure AgentCore Memory
+    print(f"DEBUG: Configuring AgentCore Memory...")
+    memory_config = AgentCoreMemoryConfig(
+        memory_id=memory_id,
+        session_id=session_id,
+        actor_id=session_id,  # Use session_id as actor_id for simplicity
+        retrieval_config={
+            f"/preferences/{session_id}": RetrievalConfig(
+                top_k=10,
+                relevance_score=0.2
             )
-            
-            # Create session manager
-            session_manager = AgentCoreMemorySessionManager(
-                agentcore_memory_config=memory_config,
-                region_name=AWS_REGION
-            )
-            
-            # Create agent with AgentCore Memory
-            session_agent = Agent(
-                model=model,
-                tools=[initiate_password_reset, complete_password_reset],
-                system_prompt=PASSWORD_RESET_SYSTEM_PROMPT,
-                session_manager=session_manager
-            )
-            
-            print(f"Agent created with AgentCore Memory - session: {session_id}")
-            
-        except Exception as e:
-            print(f"AgentCore Memory failed, falling back to simple sessions: {e}")
-            memory_id = None
+        }
+    )
+    print(f"DEBUG: Memory config created: {memory_config}")
     
-    if not memory_id or session_agent is None:
-        # Fall back to simple session management
-        print(f"Using simple session management")
-        
-        if session_id not in sessions:
-            sessions[session_id] = {
-                "messages": [],
-                "user_email": None,
-                "step": "initial"
-            }
-        
-        session_data = sessions[session_id]
-        
-        # Create agent without AgentCore Memory
-        session_agent = Agent(
-            model=model,
-            tools=[initiate_password_reset, complete_password_reset],
-            system_prompt=PASSWORD_RESET_SYSTEM_PROMPT
-        )
-        
-        # Restore session messages if any
-        if session_data["messages"]:
-            session_agent.messages = session_data["messages"].copy()
-        
-        print(f"Agent created - {len(session_agent.messages)} existing messages from session")
+    # Create session manager
+    print(f"DEBUG: Creating AgentCore Memory session manager...")
+    session_manager = AgentCoreMemorySessionManager(
+        agentcore_memory_config=memory_config,  # Fixed: correct parameter name
+        region_name=AWS_REGION
+    )
+    print(f"DEBUG: Session manager created: {session_manager}")
+    
+    # Create agent with AgentCore Memory
+    print(f"DEBUG: Creating agent with AgentCore Memory...")
+    session_agent = Agent(
+        model=model,
+        tools=[initiate_password_reset, complete_password_reset],
+        system_prompt=PASSWORD_RESET_SYSTEM_PROMPT,
+        session_manager=session_manager
+    )
+    
+    print(f"DEBUG: Agent created successfully with AgentCore Memory - session: {session_id}")
+    print(f"DEBUG: Agent has {len(session_agent.messages)} existing messages")
 
     print(f"Invoking agent with: {user_input}")
     
@@ -322,12 +339,9 @@ async def agent_invocation(payload, context=None):
                 yield chunk
             # Completely ignore all other chunk types (debug data, metadata, etc.)
         
-        # Save session state (only for simple sessions - AgentCore Memory handles this automatically)
-        if not memory_id and session_id in sessions:
-            sessions[session_id]["messages"] = session_agent.messages.copy()
-        
-        print(f"Agent response completed: {len(response_content)} characters")
-        print(f"Session management: {'AgentCore Memory' if memory_id else 'Simple sessions'}")
+        print(f"DEBUG: Agent response completed: {len(response_content)} characters")
+        print(f"DEBUG: Final agent has {len(session_agent.messages)} messages in memory")
+        print(f"DEBUG: Session management: AgentCore Memory (memory_id: {memory_id})")
         
     except Exception as e:
         error_msg = f"Error invoking agent: {str(e)}"

@@ -6,6 +6,7 @@ Test the deployed AgentCore runtime directly to verify streaming is working.
 import boto3
 import json
 import asyncio
+import uuid
 from datetime import datetime
 
 # Configuration
@@ -22,7 +23,7 @@ async def test_deployed_agent():
     
     # Test message
     message = "I forgot my password"
-    session_id = f"test-session-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    session_id = str(uuid.uuid4())
     
     print(f"Session ID: {session_id}")
     print(f"User: {message}")
@@ -30,35 +31,46 @@ async def test_deployed_agent():
     print("-" * 50)
     
     try:
-        # Invoke the agent with streaming
+        # Invoke the agent with streaming (correct API format)
+        payload_data = json.dumps({"prompt": message}).encode('utf-8')
         response = client.invoke_agent_runtime(
             agentRuntimeArn=AGENT_RUNTIME_ARN,
-            sessionId=session_id,
-            inputText=message
+            runtimeSessionId=session_id,
+            payload=payload_data
         )
         
-        # Process streaming response
+        # Process streaming response according to AgentCore documentation
         response_text = ""
         chunk_count = 0
         
-        for event in response['completion']:
-            chunk_count += 1
-            
-            if 'chunk' in event:
-                chunk = event['chunk']
-                if 'bytes' in chunk:
-                    # Decode the chunk
-                    chunk_data = json.loads(chunk['bytes'].decode('utf-8'))
-                    
-                    # Extract text if available
-                    if isinstance(chunk_data, dict) and 'data' in chunk_data:
-                        text = chunk_data['data']
-                        if isinstance(text, str) and text.strip():
-                            response_text += text
-                            print(text, end='', flush=True)
-                    elif isinstance(chunk_data, str) and chunk_data.strip():
-                        response_text += chunk_data
-                        print(chunk_data, end='', flush=True)
+        # Check if it's a streaming response
+        if "text/event-stream" in response.get("contentType", ""):
+            print("Processing streaming response...")
+            # Handle streaming response
+            for line in response["response"].iter_lines(chunk_size=10):
+                if line:
+                    chunk_count += 1
+                    line = line.decode("utf-8")
+                    if line.startswith("data: "):
+                        line = line[6:]  # Remove "data: " prefix
+                        if line.strip():
+                            response_text += line
+                            print(line, end='', flush=True)
+        
+        elif response.get("contentType") == "application/json":
+            print("Processing JSON response...")
+            # Handle standard JSON response
+            content = []
+            for chunk in response.get("response", []):
+                content.append(chunk.decode('utf-8'))
+            response_data = json.loads(''.join(content))
+            response_text = str(response_data)
+            print(response_text)
+        
+        else:
+            print(f"Unknown content type: {response.get('contentType')}")
+            print(f"Response keys: {list(response.keys())}")
+            print(f"Raw response: {response}")
         
         print(f"\n{'-' * 50}")
         print(f"Total chunks: {chunk_count}")

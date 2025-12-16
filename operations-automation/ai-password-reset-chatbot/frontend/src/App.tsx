@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import AppLayout from '@cloudscape-design/components/app-layout';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
 import ContentLayout from '@cloudscape-design/components/content-layout';
@@ -41,8 +42,12 @@ function App() {
   const [messageFeedback, setMessageFeedback] = useState<MessageFeedback>({});
   const [showSupportPrompts, setShowSupportPrompts] = useState(true);
   
-  // Generate a unique session ID for this conversation
-  const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  // Generate a unique session ID for this conversation (UUID format required by AgentCore)
+  const [sessionId] = useState(() => {
+    const newSessionId = uuidv4();
+    console.log('🆔 CREATING NEW SESSION ID:', newSessionId);
+    return newSessionId;
+  });
 
   const handleFeedback = async (messageIndex: number, feedbackType: 'helpful' | 'not-helpful') => {
     setMessageFeedback(prev => ({ ...prev, [messageIndex]: { submitting: true } }));
@@ -82,6 +87,10 @@ function App() {
       return;
     }
 
+    console.log('📤 SENDING MESSAGE:', prompt);
+    console.log('🆔 USING SESSION ID:', sessionId);
+    console.log('📊 CURRENT MESSAGE COUNT:', messages.length);
+
     setShowSupportPrompts(false);
     const userMessage: Message = { type: 'user', content: prompt, timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
@@ -96,10 +105,12 @@ function App() {
     try {
       let streamedContent = '';
       
+      console.log('🚀 CALLING invokeAgent with sessionId:', sessionId);
       const data = await invokeAgent({
         prompt: currentPrompt,
         sessionId,
         onChunk: (chunk: string) => {
+          console.log('📥 RECEIVED CHUNK:', chunk.substring(0, 50) + '...');
           streamedContent += chunk;
           setMessages(prev => {
             const updated = [...prev];
@@ -110,6 +121,9 @@ function App() {
       });
 
       const finalContent = cleanResponse(data.response || streamedContent);
+      console.log('✅ FINAL RESPONSE LENGTH:', finalContent.length);
+      console.log('🆔 SESSION ID AFTER RESPONSE:', sessionId);
+      
       setMessages(prev => {
         const updated = [...prev];
         updated[streamingMessageIndex] = { type: 'agent', content: finalContent, timestamp: new Date() };
@@ -117,6 +131,7 @@ function App() {
       });
       setShowSupportPrompts(true);
     } catch (err: any) {
+      console.error('❌ ERROR:', err.message);
       setError(err.message);
       setMessages(prev => prev.slice(0, -1));
     } finally {
