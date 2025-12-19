@@ -13,7 +13,7 @@ This repository contains deployable code samples demonstrating practical applica
 ### Cost Optimization
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
-| AI-Powered Graviton Migration Assessment | Analyze codebases for Graviton migration opportunities and drive cost optimization using AWS Transform custom | [cost-optimization/graviton-migration-assessment/](cost-optimization/graviton-migration-assessment/README.md) |
+| AI-Powered Graviton Migration Assessment | Analyze codebases for Graviton migration opportunities and drive cost optimization using AWS Transform custom | [cost-optimization/ai-graviton-migration-assessment/](cost-optimization/ai-graviton-migration-assessment/README.md) |
 | GenAI Cost Optimization MCP Server | Proactive cost analysis for AI workloads | cost-optimization/genai-cost-optimization-mcp/ |
 
 ### Observability
@@ -45,7 +45,7 @@ security/
 ├── secure-coding-kiro-hooks/
 ├── compliance-gap-analysis/
 cost-optimization/
-├── graviton-migration-assessment/
+├── ai-graviton-migration-assessment/
 ├── genai-cost-optimization-mcp/
 observability/
 ├── incident-analysis/
