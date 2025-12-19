@@ -72,15 +72,24 @@ The script automatically:
 
 **AI Analysis**: Uses AWS Transform with custom Graviton expertise  
 **Language Support**: Python, Java, Go, C/C++, Node.js, Ruby, C#  
-**Knowledge Base**: AWS best practices + [AWS Porting Advisor for Graviton](https://github.com/aws/porting-advisor-for-graviton) compatibility rules  
+**Knowledge Base**: AWS best practices + fresh data from two official AWS repositories  
 **Cost Modeling**: Instance mapping with workload-specific projections
 
-### Integration with AWS Porting Advisor
-This demo enhances AI analysis by dynamically downloading proven compatibility data from the [AWS Porting Advisor for Graviton](https://github.com/aws/porting-advisor-for-graviton) project:
+### Integration with Official AWS Graviton Resources
+This demo enhances AI analysis by dynamically downloading the latest guidance from two official AWS repositories:
+
+#### [AWS Porting Advisor for Graviton](https://github.com/aws/porting-advisor-for-graviton)
 - **Library compatibility rules** for 100+ Python packages, Java dependencies, etc.
 - **Architecture-specific patterns** for detecting x86 intrinsics and assembly code  
 - **Version requirements** for ARM64-compatible library versions
-- **Always up-to-date** compatibility data (downloaded fresh each run)
+
+#### [AWS Graviton Getting Started](https://github.com/aws/aws-graviton-getting-started)
+- **Performance optimization guidance** including compiler flags and SIMD instructions
+- **Software version recommendations** with performance improvements (FFmpeg, HAProxy, etc.)
+- **Service-specific patterns** for containers, Lambda, databases, and other AWS services
+- **Monitoring and profiling** best practices for ARM64 workloads
+
+**Always Fresh**: Both repositories are downloaded fresh during each assessment to ensure the latest compatibility rules, performance optimizations, and service patterns are available to the AI analysis.
 
 ## Cost
 
@@ -98,9 +107,10 @@ npx cdk destroy
 ## How It Works Under the Hood
 
 **Why CodeBuild?** Secure, scalable environment for AI analysis  
-**Why Knowledge Items?** Feeds Graviton best practices to the AI  
-**Why Porting Advisor Data?** Gets latest ARM64 compatibility rules  
-**Why Custom Transform?** Tailored specifically for Graviton migration patterns
+**Why Knowledge Items?** Feeds Graviton best practices and service patterns to the AI  
+**Why Dual Repository Integration?** Gets latest compatibility rules AND performance optimization guidance  
+**Why Fresh Downloads?** Ensures analysis uses current software versions and optimization recommendations  
+**Why Custom Transform?** Tailored specifically for comprehensive Graviton migration assessment
 
 ## Project Structure
 
@@ -117,7 +127,9 @@ graviton-migration-assessment/
 │   └── document_references/               # Porting Advisor integration docs
 ├── knowledge-items/
 │   ├── graviton-best-practices.md         # AWS Graviton best practices
-│   └── graviton-pricing-guide.md          # Detailed cost analysis guidance
+│   ├── graviton-pricing-guide.md          # Detailed cost analysis guidance
+│   ├── graviton-performance-optimization.md # Compiler flags, SIMD, runtime optimization
+│   └── graviton-service-patterns.md       # AWS service-specific migration patterns
 └── infrastructure/
     └── cdk/
         ├── app.py                         # CDK app entry point

@@ -19,10 +19,11 @@ This transformation analyzes codebases for AWS Graviton migration readiness and 
 - **Dependency Updates**: Provide ARM64-compatible dependency versions
 
 ### Knowledge Integration
-- **Best Practices**: Leverage AWS Graviton migration best practices from knowledge items
-- **Cost Models**: Use detailed pricing guidance for accurate ROI calculations
-- **Performance Patterns**: Apply proven optimization strategies from successful migrations
-- **Risk Mitigation**: Reference common challenges and solutions from knowledge base
+- **Fresh Compatibility Data**: Dynamic download of latest AWS Porting Advisor rules and AWS Graviton Getting Started guidance
+- **Performance Optimization**: Leverage compiler flags, software versions, and architecture-specific optimizations
+- **Service Patterns**: Apply AWS service-specific migration patterns (ECS, Lambda, RDS, etc.)
+- **Cost Models**: Use detailed pricing guidance with real-time AWS service cost analysis
+- **Risk Mitigation**: Reference common challenges and solutions from both repositories
 
 ## Analysis Methodology
 
