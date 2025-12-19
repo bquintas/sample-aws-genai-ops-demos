@@ -33,6 +33,10 @@ cdk.out*/
 # AI Documentation Generation outputs
 **/generated-docs-*/
 
+# Graviton Migration Assessment outputs
+**/graviton-assessment-*/
+**/latest-assessment/
+
 # Environment variables
 .env
 .env.local

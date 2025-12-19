@@ -1,0 +1,19 @@
+# Graviton Assessment Demo - Generated Files
+
+# Assessment output directories (downloaded from S3)
+graviton-assessment-*/
+latest-assessment/
+
+# CDK build artifacts (already covered by root .gitignore but being explicit)
+infrastructure/cdk/cdk.out/
+infrastructure/cdk/__pycache__/
+infrastructure/cdk/*.pyc
+
+# Any local test repositories or sample data
+test-repo/
+sample-*/
+temp-*/
+
+# Local assessment downloads
+assessment-*/
+migration-artifacts-*/
