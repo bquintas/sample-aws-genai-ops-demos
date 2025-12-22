@@ -27,37 +27,29 @@ This repository contains deployable code samples demonstrating practical applica
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
 | Automated Resilience Testing & Recovery | Test failure scenarios without the chaos using Amazon Bedrock and AWS FIS | resilience/automated-resilience-testing/ |
-| GenAI-Powered Capacity Management | Manage GenAI capacity to prevent outages and performance degradation | resilience/genai-capacity-management/ |
+| AWS Health Event Analyzer | AI-powered analysis of AWS Health events with intelligent categorization and actionable recommendations | resilience/aws-health-event-analyzer/ |
 
 ### Operations Automation
 | Demo Name | Description | Repository |
 |-----------|-------------|------------|
 | AWS Services Lifecycle Tracker | Automated monitoring of AWS service deprecations and end-of-life notices | [External Repository](https://github.com/aws-samples/sample-genai-powered-end-of-life-tracker) |
 | Model Upgrade Evaluator | Automated testing framework for AI model migrations | operations-automation/model-upgrade-evaluator/ |
-| Automated Documentation Generation | Generate comprehensive technical documentation from any codebase using AWS Transform | [operations-automation/ai-documentation-generation/](operations-automation/ai-documentation-generation/README.md) |
+| Automated Documentation Generation | Generate comprehensive technical documentation from any codebase using AWS Transform custom | [operations-automation/ai-documentation-generation/](operations-automation/ai-documentation-generation/README.md) |
 | AI-Powered Legacy System Automation | Automate workflows on legacy systems using Nova Act with AgentCore Browser Tool | [operations-automation/ai-legacy-system-browser-automation/](operations-automation/ai-legacy-system-browser-automation/README.md) |
 | AI Password Reset Chatbot | Conversational password reset using Amazon Nova 2 Lite and AgentCore with Cognito integration | [operations-automation/ai-password-reset-chatbot/](operations-automation/ai-password-reset-chatbot/README.md) |
 
 ## Repository Structure
 
 ```
-security/
-├── secure-coding-kiro-hooks/
-├── compliance-gap-analysis/
 cost-optimization/
 ├── ai-graviton-migration-assessment/
-├── genai-cost-optimization-mcp/
-observability/
-├── incident-analysis/
-├── genai-workload-monitoring/
-├── automated-ticket-investigation/
-resilience/
-├── automated-resilience-testing/
-├── genai-capacity-management/
 operations-automation/
-├── model-upgrade-evaluator/
 ├── ai-documentation-generation/
-└── ai-legacy-system-browser-automation/
+├── ai-legacy-system-browser-automation/
+├── ai-password-reset-chatbot/
+└── aws-services-lifecycle-tracker/
+shared/
+└── scripts/                # Common utilities and scripts
 ```
 
 Each demo folder typically contains:
