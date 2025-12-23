@@ -4,50 +4,34 @@ This repository contains deployable code samples demonstrating practical applica
 
 ## Available Demos
 
-### Security
-| Demo Name | Description | Repository |
-|-----------|-------------|------------|
-| Secure Coding with Kiro Hooks | Automated security analysis in development workflows | security/secure-coding-kiro-hooks/ |
-| Compliance Gap Analysis with AI | Find compliance gaps and get remediation guidance instantly | security/compliance-gap-analysis/ |
+| Demo Name | Pillar | Description | Repository |
+|-----------|--------|-------------|------------|
+| AI-Powered Graviton Migration Assessment | Cost Optimization | Analyze codebases for Graviton migration opportunities and drive cost optimization using AWS Transform custom | [cost-optimization/ai-graviton-migration-assessment/](cost-optimization/ai-graviton-migration-assessment/README.md) |
+| Automated Documentation Generation | Operations Automation | Generate comprehensive technical documentation from any codebase using AWS Transform custom | [operations-automation/ai-documentation-generation/](operations-automation/ai-documentation-generation/README.md) |
+| AI-Powered Legacy System Automation | Operations Automation | Automate workflows on legacy systems using Nova Act with AgentCore Browser Tool | [operations-automation/ai-legacy-system-browser-automation/](operations-automation/ai-legacy-system-browser-automation/README.md) |
+| AI Password Reset Chatbot | Operations Automation | Conversational password reset using Amazon Nova 2 Lite and AgentCore with Cognito integration | [operations-automation/ai-password-reset-chatbot/](operations-automation/ai-password-reset-chatbot/README.md) |
+| AWS Services Lifecycle Tracker | Operations Automation | Automated monitoring of AWS service deprecations and end-of-life notices | [External Repository](https://github.com/aws-samples/sample-genai-powered-end-of-life-tracker) |
 
-### Cost Optimization
-| Demo Name | Description | Repository |
-|-----------|-------------|------------|
-| AI-Powered Graviton Migration Assessment | Analyze codebases for Graviton migration opportunities and drive cost optimization using AWS Transform custom | [cost-optimization/ai-graviton-migration-assessment/](cost-optimization/ai-graviton-migration-assessment/README.md) |
-| GenAI Cost Optimization MCP Server | Proactive cost analysis for AI workloads | cost-optimization/genai-cost-optimization-mcp/ |
+## Roadmap (Coming Soon)
 
-### Observability
-| Demo Name | Description | Repository |
-|-----------|-------------|------------|
-| AI-Powered Incident Analysis | Automated root cause analysis using AI | observability/incident-analysis/ |
-| GenAI Workload Observability & Anomaly Detection | Spot GenAI usage anomalies before they become incidents | observability/genai-workload-monitoring/ |
-| Automated Ticket Investigation with DevOps Agent | Offload New Relic and ServiceNow ticket investigations to AI | observability/automated-ticket-investigation/ |
-
-### Resilience
-| Demo Name | Description | Repository |
-|-----------|-------------|------------|
-| Automated Resilience Testing & Recovery | Test failure scenarios without the chaos using Amazon Bedrock and AWS FIS | resilience/automated-resilience-testing/ |
-| AWS Health Event Analyzer | AI-powered analysis of AWS Health events with intelligent categorization and actionable recommendations | resilience/aws-health-event-analyzer/ |
-
-### Operations Automation
-| Demo Name | Description | Repository |
-|-----------|-------------|------------|
-| AWS Services Lifecycle Tracker | Automated monitoring of AWS service deprecations and end-of-life notices | [External Repository](https://github.com/aws-samples/sample-genai-powered-end-of-life-tracker) |
-| Model Upgrade Evaluator | Automated testing framework for AI model migrations | operations-automation/model-upgrade-evaluator/ |
-| Automated Documentation Generation | Generate comprehensive technical documentation from any codebase using AWS Transform custom | [operations-automation/ai-documentation-generation/](operations-automation/ai-documentation-generation/README.md) |
-| AI-Powered Legacy System Automation | Automate workflows on legacy systems using Nova Act with AgentCore Browser Tool | [operations-automation/ai-legacy-system-browser-automation/](operations-automation/ai-legacy-system-browser-automation/README.md) |
-| AI Password Reset Chatbot | Conversational password reset using Amazon Nova 2 Lite and AgentCore with Cognito integration | [operations-automation/ai-password-reset-chatbot/](operations-automation/ai-password-reset-chatbot/README.md) |
+| Demo Name | Pillar | Description | Status |
+|-----------|--------|-------------|--------|
+| Secure Coding with Kiro Hooks | Security | Automated security analysis in development workflows | Planned |
+| AWS GenAI Cost Optimization Kiro Power | Cost Optimization | MCP server for static code analysis of AWS GenAI service usage patterns with cost optimization recommendations | Planned |
+| Intelligent System Troubleshooting with AWS DevOps Agent | Observability | Identify root causes of system issues and accelerate incident response using AWS DevOps Agent through a realistic Unicorn Rentals microservices architecture | Planned |
+| Natural Language Chaos Engineering with AWS FIS | Resilience | Define AWS FIS experiment templates using natural language descriptions, automatically converted to safe chaos engineering tests via Amazon Bedrock | Planned |
+| AWS Health and Support Case Analyzer | Resilience | AI-powered analysis of AWS Health events and Support Cases with intelligent categorization and actionable recommendations | Planned |
+| Agentic Prompt Evaluator | Operations Automation | Agentic AI tool for Bedrock model migration assessment with AgentCore Code Interpreter, automated prompt optimization, and comparative model evaluation | Planned |
 
 ## Repository Structure
 
 ```
 cost-optimization/
-├── ai-graviton-migration-assessment/
+└── ai-graviton-migration-assessment/
 operations-automation/
 ├── ai-documentation-generation/
 ├── ai-legacy-system-browser-automation/
-├── ai-password-reset-chatbot/
-└── aws-services-lifecycle-tracker/
+└── ai-password-reset-chatbot/
 shared/
 └── scripts/                # Common utilities and scripts
 ```
@@ -64,9 +48,9 @@ Each demo folder typically contains:
 
 ## Getting Started
 
-1. Choose a demo from the list above
-2. Navigate to the demo's folder: `[pillar]/[demo-name]/`
-3. Follow the README.md for deployment instructions
+1. Browse the available demos in the table above
+2. Click on the repository link for your chosen demo
+3. Follow the demo's README.md for detailed deployment instructions
 4. Deploy using the provided Infrastructure as Code scripts
 
 ## Prerequisites
