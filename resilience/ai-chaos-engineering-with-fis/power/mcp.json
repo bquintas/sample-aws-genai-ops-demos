@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "aws-chaos-engineering": {
+      "command": "uvx",
+      "args": ["aws-chaos-engineering"],
+      "disabled": false,
+      "autoApprove": [
+        "get_valid_fis_actions",
+        "validate_fis_template", 
+        "refresh_valid_fis_actions_cache",
+        "generate_fis_system_prompt"
+      ]
+    },
+    "aws-mcp": {
+      "command": "uvx",
+      "timeout": 100000,
+      "transport": "stdio",
+      "args": [
+        "mcp-proxy-for-aws@latest",
+        "https://aws-mcp.us-east-1.api.aws/mcp",
+        "--metadata",
+        "AWS_REGION=us-west-2"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "aws___call_aws"
+      ]
+    }
+  }
+}

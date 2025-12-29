@@ -11,6 +11,7 @@ This repository contains deployable code samples demonstrating practical applica
 | AI-Powered Legacy System Automation | Operations Automation | Automate workflows on legacy systems using Nova Act with AgentCore Browser Tool | [operations-automation/ai-legacy-system-browser-automation/](operations-automation/ai-legacy-system-browser-automation/README.md) |
 | AI Password Reset Chatbot | Operations Automation | Conversational password reset using Amazon Nova 2 Lite and AgentCore with Cognito integration | [operations-automation/ai-password-reset-chatbot/](operations-automation/ai-password-reset-chatbot/README.md) |
 | AWS Services Lifecycle Tracker | Operations Automation | Automated monitoring of AWS service deprecations and end-of-life notices | [External Repository](https://github.com/aws-samples/sample-genai-powered-end-of-life-tracker) |
+| Natural Language Chaos Engineering with AWS FIS | Resilience | MCP server for AWS FIS operations, enabling natural language generation of chaos engineering experiment templates packaged as a Kiro Power | [resilience/ai-chaos-engineering-with-fis/](resilience/ai-chaos-engineering-with-fis/README.md) |
 
 ## Roadmap (Coming Soon)
 
@@ -19,7 +20,6 @@ This repository contains deployable code samples demonstrating practical applica
 | Secure Coding with Kiro Hooks | Security | Automated security analysis in development workflows | Planned |
 | AWS GenAI Cost Optimization Kiro Power | Cost Optimization | MCP server for static code analysis of AWS GenAI service usage patterns with cost optimization recommendations | Planned |
 | Intelligent System Troubleshooting with AWS DevOps Agent | Observability | Identify root causes of system issues and accelerate incident response using AWS DevOps Agent through a realistic Unicorn Rentals microservices architecture | Planned |
-| Natural Language Chaos Engineering with AWS FIS | Resilience | Define AWS FIS experiment templates using natural language descriptions, automatically converted to safe chaos engineering tests via Amazon Bedrock | Planned |
 | AWS Health and Support Case Analyzer | Resilience | AI-powered analysis of AWS Health events and Support Cases with intelligent categorization and actionable recommendations | Planned |
 | Agentic Prompt Evaluator | Operations Automation | Agentic AI tool for Bedrock model migration assessment with AgentCore Code Interpreter, automated prompt optimization, and comparative model evaluation | Planned |
 
@@ -32,6 +32,8 @@ operations-automation/
 ├── ai-documentation-generation/
 ├── ai-legacy-system-browser-automation/
 └── ai-password-reset-chatbot/
+resilience/
+└── ai-chaos-engineering-with-fis/
 shared/
 └── scripts/                # Common utilities and scripts
 ```
