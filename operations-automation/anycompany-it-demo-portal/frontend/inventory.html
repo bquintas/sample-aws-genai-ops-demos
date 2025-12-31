@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System - Ventana</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='16'>📁</text></svg>">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='16'>📁</text></svg>">
+    <link rel="stylesheet" href="css/ventana.css">
+    <script src="config.js"></script>
+</head>
+<body>
+    <div class="window active">
+        <div class="title-bar">
+            <div class="title-bar-text">📁 Inventory Management System</div>
+            <div class="title-bar-buttons">
+                <button onclick="window.location.href='index.html'">←</button>
+                <button data-minimize></button>
+                <button data-maximize></button>
+                <button data-close></button>
+            </div>
+        </div>
+        
+        <div class="window-body padding">
+            <p><strong>Hardware Asset Tracking and Management</strong></p>
+            <p>Track hardware assets, manage device lifecycle, and handle inventory workflows. Monitor equipment status, assignments, and maintenance schedules.</p>
+
+            <div class="flex-row gap margin-bottom">
+                <button class="primary" onclick="showAddItemModal()">Add Item</button>
+                <button onclick="refreshInventory()">Refresh</button>
+                <button onclick="exportInventory()">Export</button>
+                <button onclick="checkStock()" id="checkStockBtn" disabled>Check Stock (0 selected)</button>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <fieldset>
+                <legend>Search & Filter</legend>
+                <div class="flex-row gap">
+                    <div>
+                        <label>Search:</label>
+                        <input type="text" id="searchInput" placeholder="Search items..." onkeyup="filterItems()">
+                    </div>
+                    <div>
+                        <label>Category:</label>
+                        <select id="categoryFilter" onchange="filterItems()">
+                            <option value="">All Categories</option>
+                            <option value="Laptops">Laptops</option>
+                            <option value="Monitors">Monitors</option>
+                            <option value="Peripherals">Peripherals</option>
+                            <option value="Mobile Devices">Mobile Devices</option>
+                            <option value="Networking">Networking</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Stock Level:</label>
+                        <select id="stockFilter" onchange="filterItems()">
+                            <option value="">All Stock Levels</option>
+                            <option value="high">High (>20)</option>
+                            <option value="medium">Medium (10-20)</option>
+                            <option value="low">Low (1-9)</option>
+                            <option value="out">Out of Stock</option>
+                        </select>
+                    </div>
+                    <button onclick="clearFilters()">Clear Filters</button>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Inventory Items (<span id="itemCount">0</span>)</legend>
+                <div class="list" role="listbox" aria-multiselectable="true">
+                    <table class="detailed" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th scope="col" role="button"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                <th scope="col" role="button">Item Name</th>
+                                <th scope="col" role="button">Category</th>
+                                <th scope="col" role="button">Manufacturer</th>
+                                <th scope="col" role="button">Model</th>
+                                <th scope="col" role="button">Stock Level</th>
+                                <th scope="col" role="button">Available</th>
+                                <th scope="col" role="button" style="text-align: right;">Unit Cost</th>
+                                <th scope="col" role="button">Location</th>
+                                <th scope="col" role="button">Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Inventory items will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="modalBackdrop" onclick="hideAddItemModal()" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+    <div class="dialog active" id="addItemModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+        <div class="title-bar">
+            <div class="title-bar-text">Add New Inventory Item</div>
+            <div class="title-bar-buttons">
+                <button data-close onclick="hideAddItemModal()"></button>
+            </div>
+        </div>
+        
+        <div class="window-body padding">
+            <form id="addItemForm">
+                <div class="form-row">
+                    <label>Item Name:</label>
+                    <input type="text" id="itemName" placeholder="e.g., Professional Laptop 15&quot;" style="width: 100%;">
+                </div>
+                
+                <div class="flex-row gap">
+                    <div style="flex: 1;">
+                        <label>Category:</label>
+                        <select id="itemCategory">
+                            <option value="Laptops">Laptops</option>
+                            <option value="Monitors">Monitors</option>
+                            <option value="Peripherals">Peripherals</option>
+                            <option value="Mobile Devices">Mobile Devices</option>
+                            <option value="Networking">Networking</option>
+                        </select>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <label>Manufacturer:</label>
+                        <input type="text" id="itemManufacturer" placeholder="e.g., TechCorp">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label>Model:</label>
+                    <input type="text" id="itemModel" placeholder="e.g., Professional Series 15" style="width: 100%;">
+                </div>
+                
+                <div class="flex-row gap">
+                    <div style="flex: 1;">
+                        <label>Stock Level:</label>
+                        <input type="number" id="itemStock" min="0" value="0">
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <label>Unit Cost:</label>
+                        <input type="number" id="itemCost" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label>Location:</label>
+                    <input type="text" id="itemLocation" placeholder="e.g., IT Storage Room A" style="width: 100%;">
+                </div>
+                
+                <div class="flex-row gap margin-top">
+                    <button type="button" onclick="hideAddItemModal()">Cancel</button>
+                    <button type="button" class="primary" onclick="addItem()">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- General Message Modal -->
+    <div id="messageModalBackdrop" onclick="hideMessageModal()" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+    <div class="dialog active" id="messageModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 400px;">
+        <div class="title-bar">
+            <div class="title-bar-text" id="messageModalTitle">Message</div>
+            <div class="title-bar-buttons">
+                <button data-close onclick="hideMessageModal()"></button>
+            </div>
+        </div>
+        
+        <div class="window-body padding">
+            <div id="messageModalContent">
+                <!-- Message content will be populated here -->
+            </div>
+            
+            <div class="flex-row gap margin-top">
+                <button type="button" class="primary" onclick="hideMessageModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Check Results Modal -->
+    <div id="stockModalBackdrop" onclick="hideStockModal()" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+    <div class="dialog active" id="stockModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 500px;">
+        <div class="title-bar">
+            <div class="title-bar-text">Stock Check Results</div>
+            <div class="title-bar-buttons">
+                <button data-close onclick="hideStockModal()"></button>
+            </div>
+        </div>
+        
+        <div class="window-body padding">
+            <div id="stockModalContent">
+                <!-- Stock results will be populated here -->
+            </div>
+            
+            <div class="flex-row gap margin-top">
+                <button type="button" class="primary" onclick="hideStockModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        let inventoryItems = [];
+
+        // API Configuration - Load from generated config
+        let apiBaseUrl = window.APP_CONFIG ? window.APP_CONFIG.apiBaseUrl : 'https://wa0s6jimi7.execute-api.us-east-1.amazonaws.com/prod';
+
+        let filteredItems = [...inventoryItems];
+        let selectedItems = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInventory().then(() => {
+                renderInventory();
+            });
+        });
+
+        async function loadInventory() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/inventory`);
+                if (response.ok) {
+                    const inventoryData = await response.json();
+                    inventoryItems.length = 0; // Clear existing array
+                    inventoryItems.push(...inventoryData); // Add all items from API
+                    filteredItems = [...inventoryItems];
+                } else {
+                    console.error('Failed to load inventory from API');
+                    // Fallback to hardcoded inventory if API fails
+                    loadFallbackInventory();
+                }
+            } catch (error) {
+                console.error('Error loading inventory:', error);
+                // Fallback to hardcoded inventory if API fails
+                loadFallbackInventory();
+            }
+        }
+
+        function loadFallbackInventory() {
+            const fallbackItems = [
+                {
+                    id: 'laptop-001',
+                    name: 'Professional Laptop 16"',
+                    category: 'Laptops',
+                    model: 'Professional Laptop',
+                    manufacturer: 'TechCorp',
+                    stockLevel: 10,
+                    reservedQuantity: 2,
+                    availableQuantity: 8,
+                    unitCost: 2499.00,
+                    location: 'IT Storage Room A',
+                    lastUpdated: '2024-01-25'
+                },
+                {
+                    id: 'laptop-002',
+                    name: 'Professional Laptop 15"',
+                    category: 'Laptops',
+                    model: 'Professional Series 15',
+                    manufacturer: 'CompuTech',
+                    stockLevel: 15,
+                    reservedQuantity: 1,
+                    availableQuantity: 14,
+                    unitCost: 1899.00,
+                    location: 'IT Storage Room A',
+                    lastUpdated: '2024-01-24'
+                },
+                {
+                    id: 'monitor-001',
+                    name: 'UltraSharp 27" 4K Monitor',
+                    category: 'Monitors',
+                    model: 'U2723QE',
+                    manufacturer: 'ViewTech',
+                    stockLevel: 20,
+                    reservedQuantity: 3,
+                    availableQuantity: 17,
+                    unitCost: 599.00,
+                    location: 'IT Storage Room B',
+                    lastUpdated: '2024-01-25'
+                },
+                {
+                    id: 'monitor-002',
+                    name: 'UltraWide 34" Monitor',
+                    category: 'Monitors',
+                    model: '34WN80C-B',
+                    manufacturer: 'DisplayCorp',
+                    stockLevel: 8,
+                    reservedQuantity: 0,
+                    availableQuantity: 8,
+                    unitCost: 449.00,
+                    location: 'IT Storage Room B',
+                    lastUpdated: '2024-01-23'
+                },
+                {
+                    id: 'peripheral-001',
+                    name: 'Wireless Mouse & Keyboard Combo',
+                    category: 'Peripherals',
+                    model: 'MX Keys & MX Master 3',
+                    manufacturer: 'PeripheralTech',
+                    stockLevel: 25,
+                    reservedQuantity: 5,
+                    availableQuantity: 20,
+                    unitCost: 199.00,
+                    location: 'IT Storage Room C',
+                    lastUpdated: '2024-01-25'
+                },
+                {
+                    id: 'mobile-001',
+                    name: 'Business Smartphone Pro',
+                    category: 'Mobile Devices',
+                    model: 'Business Phone Pro',
+                    manufacturer: 'MobileTech',
+                    stockLevel: 5,
+                    reservedQuantity: 1,
+                    availableQuantity: 4,
+                    unitCost: 999.00,
+                    location: 'IT Storage Room A',
+                    lastUpdated: '2024-01-24'
+                },
+                {
+                    id: 'network-001',
+                    name: 'Enterprise Switch 24-Port',
+                    category: 'Networking',
+                    model: 'C9300-24T',
+                    manufacturer: 'NetworkCorp',
+                    stockLevel: 3,
+                    reservedQuantity: 0,
+                    availableQuantity: 3,
+                    unitCost: 3299.00,
+                    location: 'Network Closet',
+                    lastUpdated: '2024-01-22'
+                }
+            ];
+            inventoryItems.length = 0;
+            inventoryItems.push(...fallbackItems);
+            filteredItems = [...inventoryItems];
+        }
+
+        function renderInventory() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const itemCount = document.getElementById('itemCount');
+            
+            tbody.innerHTML = '';
+            itemCount.textContent = filteredItems.length;
+            
+            filteredItems.forEach(item => {
+                const stockClass = getStockClass(item.stockLevel);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="checkbox" value="${item.id}" onchange="updateSelection()"></td>
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>${item.manufacturer}</td>
+                    <td>${item.model}</td>
+                    <td style="background: ${getStockColor(item.stockLevel)}; font-weight: bold;">${item.stockLevel}</td>
+                    <td>${item.availableQuantity}</td>
+                    <td>$${item.unitCost.toFixed(2)}</td>
+                    <td>${item.location}</td>
+                    <td>${new Date(item.lastUpdated).toLocaleDateString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getStockColor(stockLevel) {
+            if (stockLevel === 0) return '#FF6B6B';
+            if (stockLevel <= 9) return '#FFA500';
+            if (stockLevel <= 20) return '#FFD700';
+            return '#90EE90';
+        }
+
+        function getStockClass(stockLevel) {
+            if (stockLevel === 0) return 'stock-out';
+            if (stockLevel <= 9) return 'stock-low';
+            if (stockLevel <= 20) return 'stock-medium';
+            return 'stock-high';
+        }
+
+        function filterItems() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+            
+            filteredItems = inventoryItems.filter(item => {
+                const matchesSearch = !searchTerm || 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.manufacturer.toLowerCase().includes(searchTerm) ||
+                    item.model.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                
+                let matchesStock = true;
+                if (stockFilter) {
+                    switch(stockFilter) {
+                        case 'high': matchesStock = item.stockLevel > 20; break;
+                        case 'medium': matchesStock = item.stockLevel >= 10 && item.stockLevel <= 20; break;
+                        case 'low': matchesStock = item.stockLevel >= 1 && item.stockLevel <= 9; break;
+                        case 'out': matchesStock = item.stockLevel === 0; break;
+                    }
+                }
+                
+                return matchesSearch && matchesCategory && matchesStock;
+            });
+            
+            renderInventory();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('stockFilter').value = '';
+            filteredItems = [...inventoryItems];
+            renderInventory();
+        }
+
+        function showAddItemModal() {
+            document.getElementById('modalBackdrop').style.display = 'block';
+            document.getElementById('addItemModal').style.display = 'block';
+        }
+
+        function hideAddItemModal() {
+            document.getElementById('modalBackdrop').style.display = 'none';
+            document.getElementById('addItemModal').style.display = 'none';
+            document.getElementById('addItemForm').reset();
+        }
+
+        function addItem() {
+            const name = document.getElementById('itemName').value;
+            const category = document.getElementById('itemCategory').value;
+            const manufacturer = document.getElementById('itemManufacturer').value;
+            const model = document.getElementById('itemModel').value;
+            const stockLevel = parseInt(document.getElementById('itemStock').value);
+            const unitCost = parseFloat(document.getElementById('itemCost').value);
+            const location = document.getElementById('itemLocation').value;
+            
+            if (!name || !manufacturer || !model || !location) {
+                showMessage('Validation Error', 'Please fill in all required fields.');
+                return;
+            }
+            
+            const newItem = {
+                id: `item-${Date.now()}`,
+                name: name,
+                category: category,
+                model: model,
+                manufacturer: manufacturer,
+                stockLevel: stockLevel,
+                reservedQuantity: 0,
+                availableQuantity: stockLevel,
+                unitCost: unitCost,
+                location: location,
+                lastUpdated: new Date().toISOString().split('T')[0]
+            };
+            
+            inventoryItems.unshift(newItem);
+            filteredItems = [...inventoryItems];
+            renderInventory();
+            hideAddItemModal();
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#inventoryTableBody input[type="checkbox"]');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            
+            updateSelection();
+        }
+
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('#inventoryTableBody input[type="checkbox"]:checked');
+            selectedItems = Array.from(checkboxes).map(cb => cb.value);
+            
+            const checkStockBtn = document.getElementById('checkStockBtn');
+            checkStockBtn.disabled = selectedItems.length === 0;
+            checkStockBtn.textContent = `Check Stock (${selectedItems.length} selected)`;
+        }
+
+        function checkStock() {
+            if (selectedItems.length === 0) return;
+            
+            const selectedItemsData = selectedItems.map(id => {
+                const item = inventoryItems.find(i => i.id === id);
+                return {
+                    name: item.name,
+                    available: item.availableQuantity,
+                    total: item.stockLevel
+                };
+            });
+            
+            showStockResults(selectedItemsData);
+        }
+
+        function refreshInventory() {
+            // Simulate refreshing data
+            inventoryItems.forEach(item => {
+                item.lastUpdated = new Date().toISOString().split('T')[0];
+            });
+            
+            filteredItems = [...inventoryItems];
+            renderInventory();
+            showMessage('Success', 'Inventory refreshed! In a real system, this would fetch the latest data from the server.');
+        }
+
+        function exportInventory() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Item Name,Category,Manufacturer,Model,Stock Level,Available,Unit Cost,Location,Last Updated\n" +
+                filteredItems.map(item => 
+                    `"${item.name}","${item.category}","${item.manufacturer}","${item.model}",${item.stockLevel},${item.availableQuantity},${item.unitCost},"${item.location}","${item.lastUpdated}"`
+                ).join('\n');
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "inventory_export.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Modal functions
+        function showMessage(title, message) {
+            document.getElementById('messageModalTitle').textContent = title;
+            document.getElementById('messageModalContent').innerHTML = `<p>${message}</p>`;
+            document.getElementById('messageModalBackdrop').style.display = 'block';
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        function hideMessageModal() {
+            document.getElementById('messageModalBackdrop').style.display = 'none';
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        function showStockResults(itemsData) {
+            const stockContent = document.getElementById('stockModalContent');
+            
+            const itemsList = itemsData.map(item => 
+                `<tr>
+                    <td style="border: 1px solid #ccc; padding: 8px;">${item.name}</td>
+                    <td style="border: 1px solid #ccc; padding: 8px; text-align: center; font-weight: bold; color: ${item.available > 0 ? '#009900' : '#cc0000'};">${item.available}</td>
+                    <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${item.total}</td>
+                </tr>`
+            ).join('');
+            
+            stockContent.innerHTML = `
+                <p><strong>Stock check results for ${itemsData.length} selected item(s):</strong></p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr style="background: #f0f0f0;">
+                            <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Item Name</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; text-align: center;">Available</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; text-align: center;">Total Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsList}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('stockModalBackdrop').style.display = 'block';
+            document.getElementById('stockModal').style.display = 'block';
+        }
+
+        function hideStockModal() {
+            document.getElementById('stockModalBackdrop').style.display = 'none';
+            document.getElementById('stockModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

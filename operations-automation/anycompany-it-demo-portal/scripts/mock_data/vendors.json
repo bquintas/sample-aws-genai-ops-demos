@@ -1,0 +1,102 @@
+[
+  {
+    "id": "vendor-1",
+    "name": "TechCorp Solutions",
+    "contactEmail": "orders@techcorp-solutions.com",
+    "contactPhone": "+1-800-555-0101",
+    "address": "100 Technology Drive, Austin, TX 78701",
+    "paymentTerms": "Net 30",
+    "category": "Hardware",
+    "isActive": true
+  },
+  {
+    "id": "vendor-2",
+    "name": "NetworkTech Systems",
+    "contactEmail": "sales@networktech-systems.com",
+    "contactPhone": "+1-800-555-0202",
+    "address": "200 Innovation Blvd, San Jose, CA 95110",
+    "paymentTerms": "Net 15",
+    "category": "Networking",
+    "isActive": true
+  },
+  {
+    "id": "vendor-3",
+    "name": "SoftwarePro Inc",
+    "contactEmail": "licensing@softwarepro.com",
+    "contactPhone": "+1-800-555-0303",
+    "address": "300 Software Lane, Redmond, WA 98052",
+    "paymentTerms": "Net 45",
+    "category": "Software",
+    "isActive": true
+  },
+  {
+    "id": "vendor-4",
+    "name": "CloudServices Ltd",
+    "contactEmail": "support@cloudservices.com",
+    "contactPhone": "+1-800-555-0404",
+    "address": "400 Cloud Street, Denver, CO 80202",
+    "paymentTerms": "Monthly",
+    "category": "Cloud Services",
+    "isActive": true
+  },
+  {
+    "id": "vendor-5",
+    "name": "SecurityTech Corp",
+    "contactEmail": "security@securitytech.com",
+    "contactPhone": "+1-800-555-0505",
+    "address": "500 Security Boulevard, Boston, MA 02101",
+    "paymentTerms": "Net 30",
+    "category": "Security",
+    "isActive": true
+  },
+  {
+    "id": "vendor-6",
+    "name": "PeripheralTech",
+    "contactEmail": "sales@peripheraltech.com",
+    "contactPhone": "+1-800-555-0606",
+    "address": "600 Peripheral Way, Portland, OR 97201",
+    "paymentTerms": "Net 15",
+    "category": "Peripherals",
+    "isActive": true
+  },
+  {
+    "id": "vendor-7",
+    "name": "AudioTech",
+    "contactEmail": "orders@audiotech.com",
+    "contactPhone": "+1-800-555-0707",
+    "address": "700 Audio Avenue, Nashville, TN 37201",
+    "paymentTerms": "Net 30",
+    "category": "Audio Equipment",
+    "isActive": true
+  },
+  {
+    "id": "vendor-8",
+    "name": "VideoTech",
+    "contactEmail": "sales@videotech.com",
+    "contactPhone": "+1-800-555-0808",
+    "address": "800 Video Street, Los Angeles, CA 90210",
+    "paymentTerms": "Net 30",
+    "category": "Video Equipment",
+    "isActive": true
+  },
+  {
+    "id": "vendor-9",
+    "name": "TabletCorp",
+    "contactEmail": "business@tabletcorp.com",
+    "contactPhone": "+1-800-555-0909",
+    "address": "900 Tablet Plaza, Cupertino, CA 95014",
+    "paymentTerms": "Net 45",
+    "category": "Mobile Devices",
+    "isActive": true
+  },
+  {
+    "id": "vendor-10",
+    "name": "DisplayCorp",
+    "contactEmail": "enterprise@displaycorp.com",
+    "contactPhone": "+1-800-555-1010",
+    "address": "1000 Display Drive, Phoenix, AZ 85001",
+    "paymentTerms": "Net 30",
+    "category": "Displays",
+    "isActive": true
+  }
+]

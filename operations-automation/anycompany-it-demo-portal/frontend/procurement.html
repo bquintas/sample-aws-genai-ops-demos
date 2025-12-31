@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procurement Management System - Manzana</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='16'>🛒</text></svg>">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='16'>🛒</text></svg>">
+    <link rel="stylesheet" href="css/manzana.css">
+    <script src="config.js"></script>
+    <style>
+        /* Modal Form Styles */
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 100%;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .form-row input,
+        .form-row .dropdown {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-row-split {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .form-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .form-field label {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .form-field input,
+        .form-field .dropdown {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #ccc;
+        }
+        
+        /* Field alignment for detail views */
+        .field-row {
+            margin-bottom: 8px;
+        }
+        
+        /* Ensure modal is properly sized */
+        #createModal {
+            width: 500px;
+            max-width: 90vw;
+        }
+    </style>
+</head>
+<body>
+    <div class="window active">
+        <div class="title-bar">
+            <div class="title-bar-text">💼 Procurement Management System</div>
+            <div class="title-bar-buttons">
+                <button onclick="window.location.href='index.html'">←</button>
+                <button data-minimize></button>
+                <button data-maximize></button>
+                <button data-close></button>
+            </div>
+        </div>
+        
+        <div class="window-body padding">
+            <p><strong>Purchase Orders and Vendor Management</strong></p>
+            <p>Manage purchase orders, vendor relationships, and procurement workflows. Create and track orders for hardware and software purchases.</p>
+
+            <div class="flex-row gap margin-bottom">
+                <button class="primary" onclick="showCreateModal()">Create Purchase Order</button>
+                <button onclick="submitSelected()" id="submitBtn" disabled>Submit Selected</button>
+                <button onclick="approveSelected()" id="approveBtn" disabled>Approve Selected</button>
+            </div>
+
+            <fieldset>
+                <legend>Purchase Orders (<span id="poCount">0</span>)</legend>
+                <div class="list" role="listbox" aria-multiselectable="true">
+                    <table class="detailed" id="poTable">
+                        <thead>
+                            <tr>
+                                <th scope="col" role="button"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                <th scope="col" role="button">PO Number</th>
+                                <th scope="col" role="button">Vendor</th>
+                                <th scope="col" role="button" style="text-align: right;">Total Amount</th>
+                                <th scope="col" role="button">Status</th>
+                                <th scope="col" role="button">Requested By</th>
+                                <th scope="col" role="button">Order Date</th>
+                                <th scope="col" role="button">Budget Code</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poTableBody">
+                            <!-- Purchase orders will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Active Vendors</legend>
+                <div id="vendorGrid">
+                    <!-- Vendors will be populated here -->
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <!-- Create PO Modal -->
+    <div id="modalBackdrop" onclick="hideCreateModal()" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+    <div class="dialog active" id="createModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+        <div class="title-bar">
+            <div class="title-bar-text">Create New Purchase Order</div>
+            <div class="title-bar-buttons">
+                <button data-close onclick="hideCreateModal()"></button>
+            </div>
+        </div>
+        
+        <div class="window-body padding">
+            <form id="createPOForm">
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label for="vendorSelect">Vendor:</label>
+                        <div class="dropdown">
+                            <select id="vendorSelect">
+                                <option value="vendor-1">TechCorp Solutions</option>
+                                <option value="vendor-2">Premium Computing Inc.</option>
+                                <option value="vendor-3">Peripheral Systems Ltd.</option>
+                            </select>
+                            <div class="dropdown-button"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="itemName">Item:</label>
+                        <input type="text" id="itemName" value="Business Laptop Pro 16&quot;">
+                    </div>
+                    
+                    <div class="form-row-split">
+                        <div class="form-field">
+                            <label for="quantity">Quantity:</label>
+                            <input type="number" id="quantity" value="1" min="1">
+                        </div>
+                        
+                        <div class="form-field">
+                            <label for="unitPrice">Unit Price:</label>
+                            <input type="number" id="unitPrice" value="2499.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="budgetCode">Budget Code:</label>
+                        <input type="text" id="budgetCode" value="ENG-2024-Q1">
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" onclick="hideCreateModal()">Cancel</button>
+                        <button type="button" class="primary" onclick="createPO()">Create PO</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PO Details Modal -->
+    <div id="detailsModalBackdrop" onclick="hidePODetailsModal()" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+    <div class="dialog active" id="poDetailsModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 500px;">
+        <div class="title-bar">
+            <div class="title-bar-text">Purchase Order Details</div>
+            <div class="title-bar-buttons">
+                <button data-close onclick="hidePODetailsModal()"></button>
+            </div>
+        </div>
+        
+        <div class="window-body padding">
+            <div id="poDetailsContent">
+                <!-- PO details will be populated here -->
+            </div>
+            
+            <div class="flex-row gap margin-top">
+                <button type="button" onclick="hidePODetailsModal()">Close</button>
+                <button type="button" class="primary" id="poActionBtn" onclick="performPOAction()" style="display: none;">Action</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data
+        let purchaseOrders = [];
+
+        const vendors = [];
+
+        // API Configuration - Load from generated config
+        let apiBaseUrl = window.APP_CONFIG ? window.APP_CONFIG.apiBaseUrl : 'https://wa0s6jimi7.execute-api.us-east-1.amazonaws.com/prod';
+
+        let selectedPOs = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            Promise.all([loadVendors(), loadPurchaseOrders()]).then(() => {
+                renderPurchaseOrders();
+                renderVendors();
+            });
+        });
+
+        async function loadPurchaseOrders() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/purchase-orders`);
+                if (response.ok) {
+                    const poData = await response.json();
+                    purchaseOrders.length = 0; // Clear existing array
+                    purchaseOrders.push(...poData); // Add all POs from API
+                } else {
+                    console.error('Failed to load purchase orders from API');
+                    // Fallback to hardcoded POs if API fails
+                    loadFallbackPurchaseOrders();
+                }
+            } catch (error) {
+                console.error('Error loading purchase orders:', error);
+                // Fallback to hardcoded POs if API fails
+                loadFallbackPurchaseOrders();
+            }
+        }
+
+        function loadFallbackPurchaseOrders() {
+            const fallbackPOs = [
+                {
+                    id: 'PO-2024-001',
+                    vendorId: 'vendor-1',
+                    vendorName: 'TechCorp Solutions',
+                    items: [
+                        { itemName: 'Professional Laptop 15"', quantity: 2, unitPrice: 1899.00, totalPrice: 3798.00 }
+                    ],
+                    totalAmount: 3798.00,
+                    status: 'Approved',
+                    requestedBy: 'IT Admin',
+                    orderDate: '2024-01-24',
+                    budgetCode: 'IT-2024-Q1'
+                },
+                {
+                    id: 'PO-2024-002',
+                    vendorId: 'vendor-2',
+                    vendorName: 'Premium Computing Inc.',
+                    items: [
+                        { itemName: 'Business Laptop Pro 16"', quantity: 1, unitPrice: 2499.00, totalPrice: 2499.00 }
+                    ],
+                    totalAmount: 2499.00,
+                    status: 'Submitted',
+                    requestedBy: 'AI Automation System',
+                    orderDate: '2024-01-25',
+                    budgetCode: 'ENG-2024-Q1'
+                }
+            ];
+            purchaseOrders.length = 0;
+            purchaseOrders.push(...fallbackPOs);
+        }
+
+        async function loadVendors() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/vendors`);
+                if (response.ok) {
+                    const vendorsData = await response.json();
+                    vendors.length = 0; // Clear existing array
+                    vendors.push(...vendorsData); // Add all vendors from API
+                    
+                    // Update vendor dropdown in create modal
+                    updateVendorDropdown();
+                } else {
+                    console.error('Failed to load vendors from API');
+                    // Fallback to hardcoded vendors if API fails
+                    loadFallbackVendors();
+                }
+            } catch (error) {
+                console.error('Error loading vendors:', error);
+                // Fallback to hardcoded vendors if API fails
+                loadFallbackVendors();
+            }
+        }
+
+        function loadFallbackVendors() {
+            const fallbackVendors = [
+                {
+                    id: 'vendor-1',
+                    name: 'TechCorp Solutions',
+                    contactEmail: 'orders@techcorp.com',
+                    contactPhone: '+1-800-915-3355',
+                    paymentTerms: 'Net 30',
+                    isActive: true
+                },
+                {
+                    id: 'vendor-2',
+                    name: 'Premium Computing Inc.',
+                    contactEmail: 'business@premiumcomputing.com',
+                    contactPhone: '+1-800-854-3680',
+                    paymentTerms: 'Net 15',
+                    isActive: true
+                },
+                {
+                    id: 'vendor-3',
+                    name: 'Peripheral Systems Ltd.',
+                    contactEmail: 'business@peripheralsystems.com',
+                    contactPhone: '+1-646-454-3200',
+                    paymentTerms: 'Net 30',
+                    isActive: true
+                }
+            ];
+            vendors.length = 0;
+            vendors.push(...fallbackVendors);
+            updateVendorDropdown();
+        }
+
+        function updateVendorDropdown() {
+            const vendorSelect = document.getElementById('vendorSelect');
+            vendorSelect.innerHTML = '';
+            
+            vendors.filter(v => v.isActive).forEach(vendor => {
+                const option = document.createElement('option');
+                option.value = vendor.id;
+                option.textContent = vendor.name;
+                vendorSelect.appendChild(option);
+            });
+        }
+
+        function renderPurchaseOrders() {
+            const tbody = document.getElementById('poTableBody');
+            const poCount = document.getElementById('poCount');
+            
+            tbody.innerHTML = '';
+            poCount.textContent = purchaseOrders.length;
+            
+            purchaseOrders.forEach(po => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="checkbox" value="${po.id}" onchange="updateSelection()"></td>
+                    <td><a href="#" onclick="showPODetails('${po.id}')">${po.id}</a></td>
+                    <td>${po.vendorName}</td>
+                    <td style="text-align: right;">${po.totalAmount.toFixed(2)}</td>
+                    <td>${po.status}</td>
+                    <td>${po.requestedBy}</td>
+                    <td>${new Date(po.orderDate).toLocaleDateString()}</td>
+                    <td>${po.budgetCode}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderVendors() {
+            const vendorGrid = document.getElementById('vendorGrid');
+            vendorGrid.innerHTML = '';
+            
+            vendors.filter(v => v.isActive).forEach(vendor => {
+                const vendorDiv = document.createElement('div');
+                vendorDiv.innerHTML = `
+                    <p><strong>${vendor.name}</strong></p>
+                    <p>Email: ${vendor.contactEmail}</p>
+                    <p>Phone: ${vendor.contactPhone}</p>
+                    <p>Terms: ${vendor.paymentTerms}</p>
+                `;
+                vendorGrid.appendChild(vendorDiv);
+            });
+        }
+
+        function showCreateModal() {
+            document.getElementById('modalBackdrop').style.display = 'block';
+            document.getElementById('createModal').style.display = 'block';
+        }
+
+        function hideCreateModal() {
+            document.getElementById('modalBackdrop').style.display = 'none';
+            document.getElementById('createModal').style.display = 'none';
+        }
+
+        async function createPO() {
+            const vendorId = document.getElementById('vendorSelect').value;
+            const vendor = vendors.find(v => v.id === vendorId);
+            const itemName = document.getElementById('itemName').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const unitPrice = parseFloat(document.getElementById('unitPrice').value);
+            const budgetCode = document.getElementById('budgetCode').value;
+            
+            const newPO = {
+                id: `PO-${Date.now()}`,
+                vendorId: vendorId,
+                vendorName: vendor.name,
+                items: [
+                    { itemName: itemName, quantity: quantity, unitPrice: unitPrice, totalPrice: quantity * unitPrice }
+                ],
+                totalAmount: quantity * unitPrice,
+                status: 'Draft',
+                requestedBy: 'AI Automation System',
+                orderDate: new Date().toISOString().split('T')[0],
+                budgetCode: budgetCode
+            };
+            
+            try {
+                // Try to save to API
+                const response = await fetch(`${apiBaseUrl}/purchase-orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newPO)
+                });
+                
+                if (response.ok) {
+                    // Reload POs from API
+                    await loadPurchaseOrders();
+                } else {
+                    // Fallback to local storage
+                    purchaseOrders.unshift(newPO);
+                }
+            } catch (error) {
+                console.error('Error creating purchase order:', error);
+                // Fallback to local storage
+                purchaseOrders.unshift(newPO);
+            }
+            
+            renderPurchaseOrders();
+            hideCreateModal();
+            
+            // Auto-submit after 2 seconds (simulate AI automation)
+            setTimeout(() => {
+                const po = purchaseOrders.find(p => p.id === newPO.id);
+                if (po && po.status === 'Draft') {
+                    po.status = 'Submitted';
+                    renderPurchaseOrders();
+                }
+            }, 2000);
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#poTableBody input[type="checkbox"]');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            
+            updateSelection();
+        }
+
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('#poTableBody input[type="checkbox"]:checked');
+            selectedPOs = Array.from(checkboxes).map(cb => cb.value);
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const approveBtn = document.getElementById('approveBtn');
+            
+            const hasDraft = selectedPOs.some(id => {
+                const po = purchaseOrders.find(p => p.id === id);
+                return po && po.status === 'Draft';
+            });
+            
+            const hasSubmitted = selectedPOs.some(id => {
+                const po = purchaseOrders.find(p => p.id === id);
+                return po && po.status === 'Submitted';
+            });
+            
+            submitBtn.disabled = !hasDraft;
+            approveBtn.disabled = !hasSubmitted;
+        }
+
+        function submitSelected() {
+            selectedPOs.forEach(id => {
+                const po = purchaseOrders.find(p => p.id === id);
+                if (po && po.status === 'Draft') {
+                    po.status = 'Submitted';
+                }
+            });
+            
+            renderPurchaseOrders();
+            selectedPOs = [];
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
+        }
+
+        function approveSelected() {
+            selectedPOs.forEach(id => {
+                const po = purchaseOrders.find(p => p.id === id);
+                if (po && po.status === 'Submitted') {
+                    po.status = 'Approved';
+                    po.approvedBy = 'Manager';
+                }
+            });
+            
+            renderPurchaseOrders();
+            selectedPOs = [];
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
+        }
+
+        function showPODetails(poId) {
+            const po = purchaseOrders.find(p => p.id === poId);
+            if (po) {
+                const detailsContent = document.getElementById('poDetailsContent');
+                const actionBtn = document.getElementById('poActionBtn');
+                
+                // Use proper classic-stylesheets field alignment patterns
+                detailsContent.innerHTML = `
+                    <fieldset>
+                        <legend>Purchase Order Information</legend>
+                        <div class="field-row">
+                            <label style="width: 120px; display: inline-block; text-align: right;">
+                                <strong>PO Number:</strong>
+                            </label>
+                            <span style="margin-left: 8px;">${po.id}</span>
+                        </div>
+                        <div class="field-row">
+                            <label style="width: 120px; display: inline-block; text-align: right;">
+                                <strong>Vendor:</strong>
+                            </label>
+                            <span style="margin-left: 8px;">${po.vendorName}</span>
+                        </div>
+                        <div class="field-row">
+                            <label style="width: 120px; display: inline-block; text-align: right;">
+                                <strong>Status:</strong>
+                            </label>
+                            <span style="margin-left: 8px; font-weight: bold; color: ${getStatusColor(po.status)};">${po.status}</span>
+                        </div>
+                        <div class="field-row">
+                            <label style="width: 120px; display: inline-block; text-align: right;">
+                                <strong>Total Amount:</strong>
+                            </label>
+                            <span style="margin-left: 8px; font-weight: bold;">${po.totalAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="field-row">
+                            <label style="width: 120px; display: inline-block; text-align: right;">
+                                <strong>Requested By:</strong>
+                            </label>
+                            <span style="margin-left: 8px;">${po.requestedBy}</span>
+                        </div>
+                        <div class="field-row">
+                            <label style="width: 120px; display: inline-block; text-align: right;">
+                                <strong>Order Date:</strong>
+                            </label>
+                            <span style="margin-left: 8px;">${new Date(po.orderDate).toLocaleDateString()}</span>
+                        </div>
+                        <div class="field-row">
+                            <label style="width: 120px; display: inline-block; text-align: right;">
+                                <strong>Budget Code:</strong>
+                            </label>
+                            <span style="margin-left: 8px;">${po.budgetCode}</span>
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Items</legend>
+                        <div class="list" role="listbox">
+                            <table class="detailed">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" role="button">Item Name</th>
+                                        <th scope="col" role="button" style="text-align: center;">Quantity</th>
+                                        <th scope="col" role="button" style="text-align: right;">Unit Price</th>
+                                        <th scope="col" role="button" style="text-align: right;">Total Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${po.items.map(item => 
+                                        `<tr>
+                                            <td>${item.itemName}</td>
+                                            <td style="text-align: center;">${item.quantity}</td>
+                                            <td style="text-align: right;">${item.unitPrice.toFixed(2)}</td>
+                                            <td style="text-align: right; font-weight: bold;">${item.totalPrice.toFixed(2)}</td>
+                                        </tr>`
+                                    ).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                `;
+                
+                // Show appropriate action button based on status
+                if (po.status === 'Draft') {
+                    actionBtn.style.display = 'inline-block';
+                    actionBtn.textContent = 'Submit for Approval';
+                    actionBtn.setAttribute('data-po-id', po.id);
+                    actionBtn.setAttribute('data-action', 'submit');
+                } else if (po.status === 'Submitted') {
+                    actionBtn.style.display = 'inline-block';
+                    actionBtn.textContent = 'Approve';
+                    actionBtn.setAttribute('data-po-id', po.id);
+                    actionBtn.setAttribute('data-action', 'approve');
+                } else {
+                    actionBtn.style.display = 'none';
+                }
+                
+                // Show the modal
+                document.getElementById('detailsModalBackdrop').style.display = 'block';
+                document.getElementById('poDetailsModal').style.display = 'block';
+            }
+        }
+
+        function hidePODetailsModal() {
+            document.getElementById('detailsModalBackdrop').style.display = 'none';
+            document.getElementById('poDetailsModal').style.display = 'none';
+        }
+
+        function performPOAction() {
+            const actionBtn = document.getElementById('poActionBtn');
+            const poId = actionBtn.getAttribute('data-po-id');
+            const action = actionBtn.getAttribute('data-action');
+            
+            const po = purchaseOrders.find(p => p.id === poId);
+            if (po) {
+                if (action === 'submit') {
+                    po.status = 'Submitted';
+                } else if (action === 'approve') {
+                    po.status = 'Approved';
+                    po.approvedBy = 'Manager';
+                }
+                
+                renderPurchaseOrders();
+                hidePODetailsModal();
+            }
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'Draft': return '#666666';
+                case 'Submitted': return '#0066cc';
+                case 'Approved': return '#009900';
+                case 'Rejected': return '#cc0000';
+                default: return '#000000';
+            }
+        }
+    </script>
+</body>
+</html>

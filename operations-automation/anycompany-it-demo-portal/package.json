@@ -1,0 +1,25 @@
+{
+  "name": "anycompany-it-demo-portal",
+  "version": "1.0.0",
+  "description": "Multi-portal IT demo environment for AI automation workflows",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1",
+    "deploy-with-data": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1 -PopulateData",
+    "destroy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1 -DestroyInfra"
+  },
+  "dependencies": {
+    "classic-stylesheets": "^2.1.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "aws",
+    "genai",
+    "operations",
+    "automation",
+    "demo",
+    "it-portal"
+  ],
+  "author": "AWS GenAI Ops Demo Library",
+  "license": "MIT"
+}

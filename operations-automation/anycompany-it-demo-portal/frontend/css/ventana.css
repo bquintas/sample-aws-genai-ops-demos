@@ -1,0 +1,200 @@
+/**
+ * Ventana Theme - PC-style interface for IT Portal Demo
+ * Generic retro PC styling without commercial references
+ */
+
+:root {
+  --text-color: #222222;
+  --surface: #c0c0c0;
+  --button-highlight: #ffffff;
+  --button-face: #dfdfdf;
+  --button-shadow: #808080;
+  --window-frame: #0a0a0a;
+  --dialog-blue: #000080;
+  --link-blue: #0000ff;
+  --element-spacing: 8px;
+}
+
+body {
+  font-family: "Tahoma", "Arial", sans-serif;
+  font-size: 11px;
+  background: #008080;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+.window {
+  background: var(--surface);
+  border: 2px outset var(--surface);
+  padding: 2px;
+  margin: 10px;
+}
+
+.title-bar {
+  background: linear-gradient(90deg, var(--dialog-blue), var(--dialog-blue));
+  color: white;
+  padding: 2px 4px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-bar-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.title-bar-buttons button {
+  width: 16px;
+  height: 13px;
+  border: 1px outset var(--button-face);
+  background: var(--button-face);
+  padding: 0;
+  cursor: pointer;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  margin: 1px;
+}
+
+.title-bar-buttons button:first-child {
+  width: 20px;
+  background: var(--button-highlight);
+  border: 2px outset var(--button-face);
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.title-bar-buttons button:first-child:hover {
+  background: #f0f0f0;
+}
+
+.title-bar-buttons button:first-child:active {
+  border: 2px inset var(--button-face);
+  background: var(--surface);
+}
+
+.title-bar-buttons button:active {
+  border: 1px inset var(--button-face);
+}
+
+.title-bar-buttons button[data-minimize]::after {
+  content: "−";
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.title-bar-buttons button[data-maximize]::after {
+  content: "□";
+  font-size: 8px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.title-bar-buttons button[data-close]::after {
+  content: "×";
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.window-body {
+  padding: var(--element-spacing);
+  background: var(--surface);
+}
+
+button, .button {
+  background: var(--button-face);
+  border: 1px outset var(--button-face);
+  padding: 2px 8px;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+button:active, .button:active {
+  border: 1px inset var(--button-face);
+}
+
+button:disabled {
+  color: var(--button-shadow);
+}
+
+button.primary {
+  border: 2px outset var(--button-face);
+  font-weight: bold;
+}
+
+input, textarea, select {
+  border: 1px inset var(--surface);
+  padding: 2px;
+  font-family: inherit;
+  font-size: inherit;
+  background: white;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border: 1px inset var(--surface);
+}
+
+th, td {
+  border: 1px solid var(--button-shadow);
+  padding: 2px 4px;
+  text-align: left;
+}
+
+th {
+  background: var(--surface);
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background: #f0f0f0;
+}
+
+tr:hover {
+  background: #316AC5;
+  color: white;
+}
+
+fieldset {
+  border: 1px groove var(--surface);
+  padding: var(--element-spacing);
+  margin: var(--element-spacing) 0;
+}
+
+legend {
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+.flex-row {
+  display: flex;
+  gap: var(--element-spacing);
+  align-items: center;
+}
+
+.gap {
+  gap: var(--element-spacing);
+}
+
+.margin-bottom {
+  margin-bottom: var(--element-spacing);
+}
+
+.margin-top {
+  margin-top: var(--element-spacing);
+}
+
+.padding {
+  padding: var(--element-spacing);
+}

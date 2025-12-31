@@ -1,0 +1,207 @@
+/**
+ * CDE Theme - Unix workstation interface for IT Portal Demo
+ * Common Desktop Environment styling without commercial references
+ */
+
+:root {
+  --desktop-bg: #63639C;
+  --window-bg: #DDDDDD;
+  --window-fg: #000000;
+  --button-bg: #DDDDDD;
+  --button-shadow: #888888;
+  --button-highlight: #FFFFFF;
+  --focus-color: #B24D7A;
+  --element-spacing: 8px;
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 12px;
+  background: var(--desktop-bg);
+  color: var(--window-fg);
+  margin: 0;
+  padding: 0;
+}
+
+.window {
+  background: var(--window-bg);
+  border: 2px outset var(--window-bg);
+  margin: 10px;
+}
+
+.title-bar {
+  background: var(--window-bg);
+  color: var(--window-fg);
+  padding: 4px 8px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--button-shadow);
+}
+
+.title-bar-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.title-bar-buttons button {
+  width: 16px;
+  height: 13px;
+  border: 1px outset var(--button-bg);
+  background: var(--button-bg);
+  padding: 0;
+  cursor: pointer;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  margin: 1px;
+}
+
+.title-bar-buttons button:first-child {
+  width: 20px;
+  background: var(--button-highlight);
+  border: 2px outset var(--button-bg);
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.title-bar-buttons button:first-child:hover {
+  background: #f0f0f0;
+}
+
+.title-bar-buttons button:first-child:active {
+  border: 2px inset var(--button-bg);
+  background: var(--window-bg);
+}
+
+.title-bar-buttons button:active {
+  border: 1px inset var(--button-bg);
+}
+
+.title-bar-buttons button[data-minimize]::after {
+  content: "−";
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.title-bar-buttons button[data-maximize]::after {
+  content: "□";
+  font-size: 8px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.title-bar-buttons button[data-close]::after {
+  content: "×";
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.window-body {
+  padding: var(--element-spacing);
+  background: var(--window-bg);
+  border: 1px inset var(--window-bg);
+}
+
+button, .button {
+  background: var(--button-bg);
+  border: 2px outset var(--button-bg);
+  padding: 4px 12px;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+button:active, .button:active {
+  border: 2px inset var(--button-bg);
+}
+
+button:disabled {
+  color: var(--button-shadow);
+  border-color: var(--button-shadow);
+}
+
+button.primary {
+  border: 3px outset var(--button-bg);
+  font-weight: bold;
+}
+
+input, textarea, select {
+  border: 2px inset var(--window-bg);
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: inherit;
+  background: white;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--focus-color);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border: 2px inset var(--window-bg);
+}
+
+th, td {
+  border: 1px solid var(--button-shadow);
+  padding: 4px 6px;
+  text-align: left;
+}
+
+th {
+  background: var(--button-bg);
+  font-weight: bold;
+  border: 1px outset var(--button-bg);
+}
+
+tr:nth-child(even) {
+  background: #f5f5f5;
+}
+
+tr:hover {
+  background: var(--focus-color);
+  color: white;
+}
+
+fieldset {
+  border: 2px groove var(--window-bg);
+  padding: var(--element-spacing);
+  margin: var(--element-spacing) 0;
+}
+
+legend {
+  padding: 0 4px;
+  font-weight: bold;
+  background: var(--window-bg);
+}
+
+.flex-row {
+  display: flex;
+  gap: var(--element-spacing);
+  align-items: center;
+}
+
+.gap {
+  gap: var(--element-spacing);
+}
+
+.margin-bottom {
+  margin-bottom: var(--element-spacing);
+}
+
+.margin-top {
+  margin-top: var(--element-spacing);
+}
+
+.padding {
+  padding: var(--element-spacing);
+}

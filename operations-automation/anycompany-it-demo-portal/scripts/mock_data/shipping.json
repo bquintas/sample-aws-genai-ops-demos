@@ -1,0 +1,179 @@
+[
+  {
+    "id": "SHIP-001",
+    "trackingNumber": "TRK-ABC123XYZ",
+    "recipientName": "John Doe",
+    "recipientEmail": "john.doe@anycompany.com",
+    "deliveryAddress": {
+      "street": "123 Main Street, Building A",
+      "city": "Seattle",
+      "state": "WA",
+      "zipCode": "98101",
+      "country": "USA"
+    },
+    "items": [
+      {
+        "itemId": "laptop-001",
+        "itemName": "Professional Laptop 16\"",
+        "quantity": 1,
+        "weight": 4.5
+      }
+    ],
+    "priority": "Express",
+    "status": "In Transit",
+    "scheduledDate": "2024-01-26T09:00:00Z",
+    "createdDate": "2024-01-24T15:30:00Z"
+  },
+  {
+    "id": "SHIP-002",
+    "trackingNumber": "TRK-DEF456UVW",
+    "recipientName": "Sarah Wilson",
+    "recipientEmail": "sarah.wilson@anycompany.com",
+    "deliveryAddress": {
+      "street": "456 Business Ave, Suite 200",
+      "city": "Portland",
+      "state": "OR",
+      "zipCode": "97201",
+      "country": "USA"
+    },
+    "items": [
+      {
+        "itemId": "monitor-001",
+        "itemName": "UltraSharp 27\" 4K Monitor",
+        "quantity": 2,
+        "weight": 12.0
+      }
+    ],
+    "priority": "Standard",
+    "status": "Delivered",
+    "scheduledDate": "2024-01-24T14:00:00Z",
+    "deliveredDate": "2024-01-24T16:30:00Z",
+    "createdDate": "2024-01-22T10:15:00Z"
+  },
+  {
+    "id": "SHIP-003",
+    "trackingNumber": "TRK-GHI789RST",
+    "recipientName": "Michael Chen",
+    "recipientEmail": "michael.chen@anycompany.com",
+    "deliveryAddress": {
+      "street": "789 Corporate Blvd, Floor 15",
+      "city": "San Francisco",
+      "state": "CA",
+      "zipCode": "94105",
+      "country": "USA"
+    },
+    "items": [
+      {
+        "itemId": "desktop-001",
+        "itemName": "Business Desktop Tower",
+        "quantity": 1,
+        "weight": 18.5
+      },
+      {
+        "itemId": "monitor-003",
+        "itemName": "Standard 24\" Monitor",
+        "quantity": 1,
+        "weight": 6.2
+      }
+    ],
+    "priority": "Standard",
+    "status": "Processing",
+    "scheduledDate": "2024-01-27T10:00:00Z",
+    "createdDate": "2024-01-25T09:45:00Z"
+  },
+  {
+    "id": "SHIP-004",
+    "trackingNumber": "TRK-JKL012MNO",
+    "recipientName": "Lisa Rodriguez",
+    "recipientEmail": "lisa.rodriguez@anycompany.com",
+    "deliveryAddress": {
+      "street": "321 Innovation Drive",
+      "city": "Austin",
+      "state": "TX",
+      "zipCode": "78701",
+      "country": "USA"
+    },
+    "items": [
+      {
+        "itemId": "phone-001",
+        "itemName": "Business Smartphone",
+        "quantity": 3,
+        "weight": 1.8
+      },
+      {
+        "itemId": "headset-001",
+        "itemName": "Noise-Canceling Headset",
+        "quantity": 3,
+        "weight": 2.1
+      }
+    ],
+    "priority": "Express",
+    "status": "Shipped",
+    "scheduledDate": "2024-01-26T11:30:00Z",
+    "shippedDate": "2024-01-25T14:20:00Z",
+    "createdDate": "2024-01-24T16:10:00Z"
+  },
+  {
+    "id": "SHIP-005",
+    "trackingNumber": "TRK-PQR345STU",
+    "recipientName": "David Kim",
+    "recipientEmail": "david.kim@anycompany.com",
+    "deliveryAddress": {
+      "street": "654 Technology Park, Building C",
+      "city": "Denver",
+      "state": "CO",
+      "zipCode": "80202",
+      "country": "USA"
+    },
+    "items": [
+      {
+        "itemId": "laptop-003",
+        "itemName": "Developer Workstation Laptop",
+        "quantity": 1,
+        "weight": 5.2
+      },
+      {
+        "itemId": "monitor-002",
+        "itemName": "UltraWide 34\" Monitor",
+        "quantity": 1,
+        "weight": 8.7
+      }
+    ],
+    "priority": "Standard",
+    "status": "Pending",
+    "scheduledDate": "2024-01-28T09:00:00Z",
+    "createdDate": "2024-01-25T11:25:00Z"
+  },
+  {
+    "id": "SHIP-006",
+    "trackingNumber": "TRK-VWX678YZA",
+    "recipientName": "Conference Room Setup",
+    "recipientEmail": "facilities@anycompany.com",
+    "deliveryAddress": {
+      "street": "987 Corporate Center, Floor 8",
+      "city": "Chicago",
+      "state": "IL",
+      "zipCode": "60601",
+      "country": "USA"
+    },
+    "items": [
+      {
+        "itemId": "webcam-001",
+        "itemName": "4K Conference Webcam",
+        "quantity": 2,
+        "weight": 3.4
+      },
+      {
+        "itemId": "tablet-001",
+        "itemName": "Business Tablet 12\"",
+        "quantity": 4,
+        "weight": 4.8
+      }
+    ],
+    "priority": "Express",
+    "status": "Delivered",
+    "scheduledDate": "2024-01-25T13:00:00Z",
+    "deliveredDate": "2024-01-25T15:45:00Z",
+    "createdDate": "2024-01-23T08:30:00Z"
+  }
+]
