@@ -66,7 +66,7 @@ The deployment script automatically checks for all required prerequisites:
 
 - AWS CLI version 2.31.13 or later (includes AWS Transform CLI)
 - Python 3.10+ (for CDK)
-- Node.js 18+ (for CDK)
+- Node.js 20+ (for CDK)
 - PowerShell (Windows) or Bash (Linux/macOS)
 - AWS credentials configured with appropriate permissions
 
@@ -371,7 +371,7 @@ See `buildspec.yml` for the complete configuration.
 ## Troubleshooting
 
 ### CDK Deployment Fails
-- Ensure Python 3.10+ and Node.js 18+ are installed
+- Ensure Python 3.10+ and Node.js 20+ are installed
 - Check that CDK is bootstrapped: `cdk bootstrap aws://<account>/<region>`
 - Verify AWS credentials have CloudFormation permissions
 

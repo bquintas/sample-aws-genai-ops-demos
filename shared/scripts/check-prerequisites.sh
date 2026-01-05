@@ -71,7 +71,7 @@ fi
 
 # Check Node.js version (if required for CDK)
 if [ "$REQUIRE_CDK" = true ] || [ -n "$MIN_NODE_VERSION" ]; then
-    NODE_MIN=${MIN_NODE_VERSION:-18}
+    NODE_MIN=${MIN_NODE_VERSION:-20}
     echo -e "\n\033[0;33mChecking Node.js version...\033[0m"
     NODE_VERSION=$(node --version 2>&1)
     if [[ $NODE_VERSION =~ v([0-9]+) ]]; then

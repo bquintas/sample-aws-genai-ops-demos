@@ -73,7 +73,7 @@ Resources:
   MyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Runtime: python3.9
+      Runtime: python3.11
       Architectures:
         - arm64  # Specify ARM64 architecture
       Handler: app.lambda_handler

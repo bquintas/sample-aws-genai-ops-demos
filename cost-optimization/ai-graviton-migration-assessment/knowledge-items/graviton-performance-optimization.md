@@ -36,7 +36,7 @@ This guide provides performance optimization strategies for AWS Graviton process
 
 **Python Runtime**
 - **Minimum**: Python 3.7.5+
-- **Recommended**: Python 3.9+ for optimal ARM64 performance
+- **Recommended**: Python 3.10+ for optimal ARM64 performance
 - **Key Libraries**:
   - NumPy 1.19.0+ (1.21.1+ recommended)
   - TensorFlow 2.7.0+
@@ -49,7 +49,7 @@ This guide provides performance optimization strategies for AWS Graviton process
 
 **Node.js Runtime**
 - **Minimum**: Node.js 14+
-- **Recommended**: Node.js 18+ for latest ARM64 optimizations
+- **Recommended**: Node.js 20+ for latest ARM64 optimizations
 
 **Database Systems**
 - **PostgreSQL**: 15+ (general scalability improvements for ARM64)

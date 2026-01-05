@@ -60,8 +60,8 @@ Each demo folder typically contains:
 
 - AWS CLI configured with appropriate permissions
 - AWS CDK or Terraform (depending on demo)
-- Node.js 18+ (for CDK-based demos)
-- Python 3.9+ (for Python-based demos)
+- Node.js 20+ (for CDK-based demos)
+- Python 3.10+ (for Python-based demos)
 
 ## Technology Stack
 

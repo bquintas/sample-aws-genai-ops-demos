@@ -48,7 +48,7 @@ GitHub Repo → CodeBuild (AWS Transform AI) → S3 (Assessment + Artifacts)
 ## Prerequisites
 
 - AWS CLI 2.31.13+ with configured credentials
-- Python 3.10+ and Node.js 18+ (for CDK)
+- Python 3.10+ and Node.js 20+ (for CDK)
 - AWS Transform permissions (`transform-custom:*`)
 
 ## Quick Start

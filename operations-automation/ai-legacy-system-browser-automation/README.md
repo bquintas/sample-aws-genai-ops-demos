@@ -67,7 +67,7 @@ AgentCore Browser Tool provides:
 ## Prerequisites
 
 - Python 3.10+
-- Node.js 18+ (for CDK)
+- Node.js 20+ (for CDK)
 - AWS CLI v2 configured with credentials
 - AWS Region: `us-east-1`
 

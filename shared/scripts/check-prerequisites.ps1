@@ -38,7 +38,7 @@ if (-not [string]::IsNullOrEmpty($MinPythonVersion)) {
 
 # Check Node.js version (if required for CDK)
 if ($RequireCDK -or -not [string]::IsNullOrEmpty($MinNodeVersion)) {
-    $nodeMinVersion = if ([string]::IsNullOrEmpty($MinNodeVersion)) { "18" } else { $MinNodeVersion }
+    $nodeMinVersion = if ([string]::IsNullOrEmpty($MinNodeVersion)) { "20" } else { $MinNodeVersion }
     Write-Host "`nChecking Node.js version..." -ForegroundColor Yellow
     $nodeVersion = node --version 2>&1
     if ($nodeVersion -match "v(\d+)") {
