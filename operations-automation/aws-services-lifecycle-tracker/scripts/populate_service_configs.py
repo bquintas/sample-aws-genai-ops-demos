@@ -11,6 +11,7 @@ Usage:
 
 import boto3
 import json
+import sys
 from decimal import Decimal
 from pathlib import Path
 
@@ -64,4 +65,4 @@ def populate_service_configs():
 
 if __name__ == "__main__":
     success = populate_service_configs()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

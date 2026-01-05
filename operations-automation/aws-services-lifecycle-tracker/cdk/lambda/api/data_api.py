@@ -115,8 +115,10 @@ def handle_list_deprecations(query_parameters: Dict[str, Any]) -> Dict[str, Any]
         
     except Exception as e:
         print(f"❌ List deprecations failed: {str(e)}")
-        return create_error_response(500, f"Failed to list deprecations: {str(e)}")de
-f handle_get_service_deprecations(service_name: str, query_parameters: Dict[str, Any]) -> Dict[str, Any]:
+        return create_error_response(500, f"Failed to list deprecations: {str(e)}")
+
+
+def handle_get_service_deprecations(service_name: str, query_parameters: Dict[str, Any]) -> Dict[str, Any]:
     """
     Get deprecations for a specific service.
     """

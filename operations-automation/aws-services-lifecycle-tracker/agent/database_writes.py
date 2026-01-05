@@ -6,7 +6,7 @@ import os
 import boto3
 from decimal import Decimal
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from botocore.exceptions import ClientError
 
 from database_reads import config_table, lifecycle_table, get_service_config
@@ -17,8 +17,6 @@ def categorize_item_status(item: Dict[str, Any], service_name: str = None) -> st
     Intelligently categorize item status based on dates and service-specific logic
     Returns: 'deprecated', 'extended_support', 'end_of_life', or 'end_of_support_date'
     """
-    from datetime import datetime, timezone
-    
     current_date = datetime.now(timezone.utc).date()
     
     # Look for various date fields that might indicate lifecycle stage
@@ -45,7 +43,8 @@ def categorize_item_status(item: Dict[str, Any], service_name: str = None) -> st
                             break
                         except ValueError:
                             continue
-            except:
+            except (TypeError, AttributeError, ValueError) as e:
+                # Skip fields with invalid date data types or formats
                 continue
     
     # SERVICE-SPECIFIC LOGIC
@@ -73,7 +72,7 @@ def categorize_item_status(item: Dict[str, Any], service_name: str = None) -> st
         if 'retirement_date' in parsed_dates:
             retirement_date = parsed_dates['retirement_date']
             if retirement_date <= current_date:
-                return 'deprecated'  # Already retired
+                return 'end_of_life'  # Already retired
             else:
                 return 'deprecated'  # Scheduled for retirement
         
@@ -125,7 +124,7 @@ def categorize_item_status(item: Dict[str, Any], service_name: str = None) -> st
     return 'deprecated'
 
 
-def validate_item_against_config(item: Dict[str, Any], config: Dict[str, Any]) -> tuple[bool, List[str]]:
+def validate_item_against_config(item: Dict[str, Any], config: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
     Validate an extracted item against the service configuration.
     Returns (is_valid, list_of_errors)
@@ -219,12 +218,8 @@ def store_deprecation_data(service_name: str, items: list) -> dict:
                     if field in item:
                         # Handle different field name variations from the hybrid extractor
                         value = item[field]
-                        # Clean up common field name variations
-                        if field.endswith('_date') and isinstance(value, str):
-                            # Normalize date formats if needed
-                            service_specific[field] = value
-                        else:
-                            service_specific[field] = value
+                        # Store the value (date normalization could be added here if needed)
+                        service_specific[field] = value
                 
                 # Intelligently determine status based on dates
                 # Merge service_specific fields to top level for status categorization
