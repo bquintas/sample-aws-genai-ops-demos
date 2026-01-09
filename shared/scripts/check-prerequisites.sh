@@ -159,7 +159,7 @@ echo -e "\033[0;90m      Target region: $CURRENT_REGION\033[0m"
 if [ "$SKIP_SERVICE_CHECK" = false ] && [ -n "$REQUIRED_SERVICE" ]; then
     echo -e "\n\033[0;33mChecking $REQUIRED_SERVICE availability in $CURRENT_REGION...\033[0m"
     
-    case "${REQUIRED_SERVICE,,}" in
+    case "$(echo "$REQUIRED_SERVICE" | tr '[:upper:]' '[:lower:]')" in
         "bedrock")
             if ! aws bedrock list-foundation-models --region "$CURRENT_REGION" --max-results 1 > /dev/null 2>&1; then
                 echo -e "\033[0;31m      ❌ Amazon Bedrock is not available in region: $CURRENT_REGION\033[0m"
