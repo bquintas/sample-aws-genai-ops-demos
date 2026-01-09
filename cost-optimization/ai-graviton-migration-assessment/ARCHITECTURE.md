@@ -159,35 +159,64 @@ Generated Assessment → S3 Upload → Available for Download
 
 ## Generated Assessment Structure
 
-AWS Transform creates comprehensive Graviton migration assessments:
+AWS Transform creates comprehensive Graviton migration assessments with the following structure:
 
 ```
-Migration-Assessment/
-├── README.md                           # Executive summary and navigation
-├── architecture/
-│   ├── compatibility-analysis.md      # Graviton compatibility assessment
-│   ├── instance-mapping.md            # x86_64 to Graviton instance mapping
-│   └── performance-considerations.md  # Performance impact analysis
-├── cost-analysis/
-│   ├── savings-calculation.md         # Cost savings projections
-│   ├── tco-analysis.md               # Total Cost of Ownership
-│   └── roi-timeline.md               # Return on Investment timeline
-├── migration-plan/
-│   ├── phased-approach.md            # Migration phases and priorities
-│   ├── testing-strategy.md           # Validation and testing procedures
-│   └── rollback-procedures.md        # Risk mitigation and rollback
-├── technical-assessment/
-│   ├── dependency-analysis.md        # Library and framework compatibility
-│   ├── build-modifications.md        # Required build process changes
-│   └── container-analysis.md         # Container and orchestration changes
-├── implementation/
-│   ├── quick-wins.md                 # Low-risk, high-impact opportunities
-│   ├── pilot-candidates.md           # Recommended pilot workloads
-│   └── resource-requirements.md      # Team and timeline estimates
-└── appendix/
-    ├── graviton-services.md          # AWS services supporting Graviton
-    └── best-practices.md             # Graviton optimization best practices
+graviton-assessment-{project}-{timestamp}/
+├── GRAVITON_VALIDATION_SUMMARY.md     # Main validation and readiness report
+├── Assessment/                         # Detailed analysis reports
+│   ├── executive-summary.md           # Executive decision summary
+│   ├── compatibility-analysis/        # Technical compatibility assessment
+│   │   ├── architecture-issues.md     # Architecture-specific concerns
+│   │   ├── dependency-matrix.md       # Dependency compatibility matrix
+│   │   └── language-compatibility.md  # Language/runtime compatibility
+│   ├── cost-analysis/                 # Financial impact analysis
+│   │   ├── instance-mapping.md        # x86_64 to Graviton instance mapping
+│   │   ├── roi-timeline.md           # Return on Investment timeline
+│   │   └── savings-projections.md    # Cost savings calculations
+│   └── migration-plan/               # Implementation roadmap
+│       ├── complexity-scoring.md     # Migration complexity assessment
+│       ├── complexity-summary.md     # Complexity overview
+│       ├── phased-approach.md        # Migration phases and priorities
+│       ├── phased-approach-summary.md # Phase summary
+│       ├── risk-mitigation.md        # Risk mitigation strategies
+│       └── risk-summary.md           # Risk assessment overview
+├── Migration-Artifacts/              # Implementation resources
+│   ├── ci-cd/                       # CI/CD pipeline updates
+│   │   └── github-workflows/        # GitHub Actions workflows
+│   ├── documentation/               # Migration guides
+│   │   └── graviton-migration-guide.md # Step-by-step migration guide
+│   ├── infrastructure/              # Infrastructure as Code
+│   │   └── graviton-lambda-cdk.md  # CDK configuration for ARM64
+│   └── scripts/                     # Automation and validation scripts
+│       ├── benchmark-arm64.sh       # ARM64 performance benchmarking
+│       ├── benchmark-performance.sh # Performance comparison scripts
+│       ├── benchmark-performance-enhanced.sh # Enhanced benchmarking
+│       ├── rollback-to-x86.sh      # Rollback procedures
+│       ├── test-arm64-compatibility.sh # Compatibility testing
+│       └── validate-dependencies.sh # Dependency validation
+└── [Additional generated files]      # Various analysis and reference files
+    ├── README.md                    # Project overview
+    ├── API.md                       # API documentation
+    ├── CHANGELOG.md                 # Change history
+    ├── LICENSE.md                   # License information
+    └── [100+ analysis files]        # Detailed technical analysis files
 ```
+
+### Key Assessment Files
+
+#### Primary Reports
+- **GRAVITON_VALIDATION_SUMMARY.md**: Main assessment report with validation status, build results, and migration readiness
+- **Assessment/executive-summary.md**: Executive decision summary with recommendations and key findings
+- **Assessment/compatibility-analysis/**: Technical compatibility assessment including dependency matrix and architecture issues
+- **Assessment/cost-analysis/**: Financial impact analysis with ROI calculations and savings projections
+- **Assessment/migration-plan/**: Implementation roadmap with phased approach and risk mitigation
+
+#### Implementation Resources
+- **Migration-Artifacts/scripts/**: Ready-to-use validation and benchmarking scripts
+- **Migration-Artifacts/infrastructure/**: Infrastructure as Code templates for ARM64 deployment
+- **Migration-Artifacts/ci-cd/**: Updated CI/CD pipeline configurations
+- **Migration-Artifacts/documentation/**: Step-by-step migration guides and best practices
 
 ## Security Design
 
