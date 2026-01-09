@@ -41,7 +41,7 @@ if [ "$DESTROY_INFRA" = true ]; then
     echo "Destroying infrastructure..."
     
     # Use shared CDK destroy script
-    ../../shared/scripts/deploy-cdk.sh -CdkDirectory infrastructure/cdk -DestroyStack
+    ../../shared/scripts/deploy-cdk.sh --cdk-directory infrastructure/cdk --destroy
     
     echo "Infrastructure destruction completed"
     exit 0
@@ -53,7 +53,7 @@ echo "Checking prerequisites..."
 
 # Deploy CDK infrastructure using shared script
 echo "Deploying AWS infrastructure..."
-../../shared/scripts/deploy-cdk.sh -CdkDirectory infrastructure/cdk
+../../shared/scripts/deploy-cdk.sh --cdk-directory infrastructure/cdk
 
 if [ $? -ne 0 ]; then
     echo "Error: CDK deployment failed"

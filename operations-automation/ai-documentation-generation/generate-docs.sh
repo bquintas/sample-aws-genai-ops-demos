@@ -49,40 +49,6 @@ echo ""
 TRANSFORMATION_TYPE="enhanced"
 BUILDSPEC_FILE="buildspec.yml"
 EXPECTED_TIME="~53 minutes"
-echo -e "\033[0;37m  2. Enhanced AWS-managed transformation (recommended)\033[0m"
-echo -e "\033[0;90m     - AWS-managed transformation with custom organizational context\033[0m"
-echo -e "\033[0;90m     - Best of both worlds: technical depth + structured output\033[0m"
-echo -e "\033[0;90m     - Expected time: 45-90 minutes\033[0m"
-echo ""
-echo -e "\033[0;37m  3. Custom-defined transformation (experimental)\033[0m"
-echo -e "\033[0;90m     - Fully custom transformation with organization-specific logic\033[0m"
-echo -e "\033[0;90m     - Complete control over analysis and output structure\033[0m"
-echo -e "\033[0;90m     - Expected time: ~60 minutes (benchmarked)\033[0m"
-echo ""
-
-while true; do
-    read -p "Enter your choice (1, 2, or 3): " TRANSFORM_CHOICE
-    if [ "$TRANSFORM_CHOICE" = "1" ] || [ "$TRANSFORM_CHOICE" = "2" ] || [ "$TRANSFORM_CHOICE" = "3" ]; then
-        break
-    fi
-done
-
-if [ "$TRANSFORM_CHOICE" = "1" ]; then
-    TRANSFORMATION_TYPE="managed"
-    BUILDSPEC_FILE="buildspec-custom-managed.yml"
-    EXPECTED_TIME="45-90 minutes"
-    echo -e "\033[0;32mSelected: AWS-managed transformation (standard)\033[0m"
-elif [ "$TRANSFORM_CHOICE" = "2" ]; then
-    TRANSFORMATION_TYPE="enhanced"
-    BUILDSPEC_FILE="buildspec-enhanced-managed.yml"
-    EXPECTED_TIME="45-90 minutes"
-    echo -e "\033[0;32mSelected: Enhanced AWS-managed transformation\033[0m"
-else
-    TRANSFORMATION_TYPE="custom"
-    BUILDSPEC_FILE="buildspec-custom-defined.yml"
-    EXPECTED_TIME="~60 minutes"
-    echo -e "\033[0;32mSelected: Custom-defined transformation\033[0m"
-fi
 
 echo ""
 
@@ -104,8 +70,8 @@ SHARED_SCRIPTS_DIR="$SCRIPT_DIR/../../shared/scripts"
 
 # Run prerequisites check
 echo -e "\033[0;33mRunning prerequisites check...\033[0m"
-source "$SHARED_SCRIPTS_DIR/check-prerequisites.sh" \
-    --service "transform" \
+"$SHARED_SCRIPTS_DIR/check-prerequisites.sh" \
+    --required-service "transform" \
     --require-cdk
 
 # Get AWS account and region info
@@ -120,7 +86,7 @@ echo -e "\033[0;33mDeploying infrastructure via CDK...\033[0m"
 echo -e "\033[0;90m      Region: $CURRENT_REGION\033[0m"
 
 # Deploy CDK stack using shared script
-source "$SHARED_SCRIPTS_DIR/deploy-cdk.sh" --cdk-directory "$CDK_DIR"
+"$SHARED_SCRIPTS_DIR/deploy-cdk.sh" --cdk-directory "$CDK_DIR"
 
 if [ $? -ne 0 ]; then
     echo -e "\033[0;31mCDK deployment failed\033[0m"
@@ -149,16 +115,14 @@ else
     exit 1
 fi
 
-# Upload custom transformation files if using custom transformation
-if [ "$TRANSFORMATION_TYPE" = "custom" ]; then
-    echo ""
-    echo -e "\033[0;33mUploading custom transformation definition...\033[0m"
-    if aws s3 cp "$SCRIPT_DIR/custom-transformation/" "s3://$OUTPUT_BUCKET/transformations/custom-doc-generation/" --recursive --region "$CURRENT_REGION" --no-cli-pager > /dev/null; then
-        echo -e "\033[0;32m      ✓ Custom transformation uploaded successfully\033[0m"
-    else
-        echo -e "\033[0;31m      ❌ Failed to upload custom transformation\033[0m"
-        exit 1
-    fi
+# Upload enhanced transformation context
+echo ""
+echo -e "\033[0;33mUploading enhanced transformation context...\033[0m"
+if aws s3 cp "$SCRIPT_DIR/enhanced-transformation/" "s3://$OUTPUT_BUCKET/enhanced-transformation/" --recursive --region "$CURRENT_REGION" --no-cli-pager > /dev/null; then
+    echo -e "\033[0;32m      ✓ Enhanced transformation context uploaded successfully\033[0m"
+else
+    echo -e "\033[0;31m      ❌ Failed to upload enhanced transformation context\033[0m"
+    exit 1
 fi
 
 if [ "$DEPLOY_ONLY" = true ]; then

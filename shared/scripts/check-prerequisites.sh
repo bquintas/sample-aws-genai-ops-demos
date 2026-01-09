@@ -14,11 +14,11 @@ REQUIRE_CDK=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --service)
+        --required-service)
             REQUIRED_SERVICE="$2"
             shift 2
             ;;
-        --min-cli-version)
+        --min-aws-cli-version)
             MIN_AWS_CLI_VERSION="$2"
             shift 2
             ;;

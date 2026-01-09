@@ -82,7 +82,7 @@ if [[ "$SKIP_SETUP" != "true" ]]; then
     
     # Call shared prerequisites script with required checks
     "$SHARED_SCRIPTS_DIR/check-prerequisites.sh" \
-        --service "agentcore-browser" \
+        --required-service "agentcore-browser" \
         --min-python-version "3.10" \
         --require-cdk
     
