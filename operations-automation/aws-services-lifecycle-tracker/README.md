@@ -118,7 +118,6 @@ chmod +x deploy-all.sh scripts/build-frontend.sh
 > - **Windows users**: Use the PowerShell script (`.ps1`)
 > - **macOS/Linux users**: Use the bash script (`.sh`)
 > - Both scripts perform identical operations and produce the same infrastructure
-> - If you prefer PowerShell on macOS: `brew install --cask powershell` then run `pwsh deploy-all.ps1`
 
 **Time:** ~10 minutes (most time is CodeBuild creating the container image)
 

@@ -1,6 +1,6 @@
 # AWS Chaos Engineering MCP Server
 
-An MCP (Model Context Protocol) server for AWS FIS (Fault Injection Simulator) operations, enabling natural language generation of chaos engineering experiment templates. This server is designed to be packaged as a Kiro Power for seamless integration with AI-assisted development workflows.
+An MCP (Model Context Protocol) server for AWS FIS (Fault Injection Simulator) operations, enabling natural language generation of chaos engineering experiment templates. This server can be used as a standalone MCP server and works best with [Kiro Power](https://kiro.dev/powers/) for seamless integration with AI-assisted development workflows.
 
 > **Inspired by**: [Chaos engineering made clear: Generate AWS FIS experiments using natural language through Amazon Bedrock](https://aws.amazon.com/blogs/publicsector/chaos-engineering-made-clear-generate-aws-fis-experiments-using-natural-language-through-amazon-bedrock/)
 
@@ -11,91 +11,39 @@ This MCP server transforms natural language descriptions into validated AWS Faul
 ### Key Capabilities
 
 - **Natural Language to FIS Templates**: Convert plain English descriptions into deployable JSON CloudFormation templates
-- **Current AWS Capabilities**: Always uses up-to-date FIS actions and resource types from AWS APIs
-- **Template Validation**: Validates generated templates against current AWS FIS capabilities
-- **Intelligent Caching**: 24-hour TTL cache with automatic refresh instructions
+- **Current AWS Capabilities**: Always uses up-to-date valid FIS actions and resource types from AWS APIs
+- **Template Validation**: Validates generated templates against current AWS FIS capabilities to mitigate hallucinations
+- **Intelligent Caching**: 24-hour TTL valide FIS actions list cache with automatic refresh instructions
 - **Agent Orchestration**: Proper MCP architecture with agent-coordinated server interactions
 
-## Features
+## Prerequisites
 
-- **Local Caching**: File-based caching of FIS capabilities with automatic TTL management
-- **Template Validation**: Validates action IDs and resource types (not IAM permissions or ARNs)
-- **Agent Orchestration**: Follows MCP architecture where agents orchestrate all server interactions
-- **Error Handling**: Comprehensive error handling with MCP-compliant responses
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Kiro Power Integration**: Packaged as a complete Kiro Power with documentation and steering files
+- **Python 3.10+** and **uvx** for MCP server installation
+- **AWS CLI 2.31.13+** and **AWS Credentials** with FIS permissions
+- **Kiro IDE** (if using as Kiro Power)
 
-## Installation and Setup
+## Installation
 
-### Prerequisites
+### Using `uvx`
 
-Before installing the MCP server, ensure you have:
-
-- **Python 3.8+**: Required for MCP server execution
-- **uvx**: Recommended package manager for MCP servers
-- **AWS CLI 2.31.13+**: For AWS service access
-- **AWS Credentials**: Configured with appropriate FIS permissions
-- **Kiro**: For MCP client functionality (if using as Kiro Power)
-
-### Quick Installation
+1. Install `uvx` from [Astral](https://docs.astral.sh/uv/getting-started/installation/) or the [GitHub README](https://github.com/astral-sh/uv#installation)
+2. Install Python using `uv python install 3.8`
+3. Install the MCP server:
 
 ```bash
 # Install the MCP server
 uv tool install .
-
-# Verify installation
-uvx aws-chaos-engineering --help
 ```
 
-### AWS Configuration
+## Configuration
 
-#### 1. Configure AWS CLI
+Click on the relevant below badge to automatically add this IDE MCP server to your MCP client configuration.
 
-```bash
-# Configure AWS credentials and region
-aws configure
+| Kiro | Cursor | VS Code |
+|:----:|:------:|:-------:|
+| [![Add to Kiro](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=aws-chaos-engineering&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22aws-chaos-engineering%22%5D%2C%22env%22%3A%7B%22FASTMCP_LOG_LEVEL%22%3A%22ERROR%22%7D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%22get_valid_fis_actions%22%2C%22validate_fis_template%22%2C%22refresh_valid_fis_actions_cache%22%5D%7D) | [![Install MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en/install-mcp?name=aws-chaos-engineering&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJhd3MtY2hhb3MtZW5naW5lZXJpbmciXSwiZW52Ijp7IkZBU1RNQ1BfTE9HX0xFVkVMIjoiRVJST1IifSwiZGlzYWJsZWQiOmZhbHNlLCJhdXRvQXBwcm92ZSI6WyJnZXRfdmFsaWRfZmlzX2FjdGlvbnMiLCJ2YWxpZGF0ZV9maXNfdGVtcGxhdGUiLCJyZWZyZXNoX3ZhbGlkX2Zpc19hY3Rpb25zX2NhY2hlIl19) | [![Install on VS Code](https://img.shields.io/badge/Install_on-VS_Code-FF9900?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=AWS%20Chaos%20Engineering&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22aws-chaos-engineering%22%5D%2C%22env%22%3A%7B%22FASTMCP_LOG_LEVEL%22%3A%22ERROR%22%7D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%22get_valid_fis_actions%22%2C%22validate_fis_template%22%2C%22refresh_valid_fis_actions_cache%22%5D%7D) |
 
-# Verify configuration
-aws sts get-caller-identity
-```
-
-#### 2. Verify FIS Access
-
-```bash
-# Test FIS service access
-aws fis list-actions --region us-east-1 --no-paginate
-
-# Check available regions
-aws ec2 describe-regions --query 'Regions[].RegionName' --output table
-```
-
-#### 3. Required IAM Permissions
-
-Your AWS credentials must have the following permissions:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "fis:ListActions",
-                "fis:ListExperimentTemplates", 
-                "fis:GetAction",
-                "fis:DescribeAction"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-```
-
-### Kiro Power Setup
-
-#### 1. MCP Configuration
-
-Add to your Kiro `mcp.json` configuration:
+Or manually configure the MCP server in your MCP client configuration:
 
 ```json
 {
@@ -103,41 +51,28 @@ Add to your Kiro `mcp.json` configuration:
     "aws-chaos-engineering": {
       "command": "uvx",
       "args": ["aws-chaos-engineering"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
       "disabled": false,
-      "autoApprove": [
-        "get_valid_fis_actions", 
-        "validate_fis_template", 
-        "refresh_valid_fis_actions_cache"
-      ]
-    },
-    "aws-mcp": {
-      "command": "uvx",
-      "timeout": 100000,
-      "transport": "stdio",
-      "args": [
-        "mcp-proxy-for-aws@latest", 
-        "https://aws-mcp.us-east-1.api.aws/mcp", 
-        "--metadata", 
-        "AWS_REGION=us-west-2"
-      ],
-      "disabled": false,
-      "autoApprove": []
+      "autoApprove": ["get_valid_fis_actions", "validate_fis_template", "refresh_valid_fis_actions_cache"]
     }
   }
 }
 ```
 
-#### 2. Power Installation
+If you are using Kiro we recommend you to configure this MCP Server as a [Kiro Power](https://kiro.dev/powers/) rather than a simple MCP Server.
 
-If using as a complete Kiro Power:
+Follow these steps to add a Kiro Power:
 
-1. Copy the `power/` directory to your Kiro powers location
-2. Restart Kiro to load the new power
-3. Verify power activation with chaos engineering keywords
+1. **Install MCP server** (see above)
+2. **Click Powers icon** in Kiro left menu
+3. **Add Custom Power** → "Import power from a folder" → browse to `power/` folder
+4. **Test**: Try "Scan my project for GenAI cost optimization opportunities"
 
-### Verification
+## Verification
 
-#### Test MCP Server Installation
+### Test MCP Server Installation
 
 ```bash
 # Test server startup (should start and wait for input)
@@ -170,7 +105,7 @@ After running the echo command, you should see a JSON response similar to:
 
 This confirms the MCP server is properly installed and responding to protocol messages.
 
-#### Cache Location
+### Cache Location
 
 The MCP server creates a local cache to store FIS capabilities data:
 
@@ -179,7 +114,7 @@ The MCP server creates a local cache to store FIS capabilities data:
 
 Cache files are named by region (e.g., `fis_actions_us-east-1.json`) and automatically refresh every 24 hours.
 
-#### Test Integration
+### Test Integration
 
 Run the integration test suite:
 
@@ -214,20 +149,16 @@ Tests completed: 5 passed, 0 failed
 
 ## Usage
 
-### As Kiro Power (Recommended)
+### Automatic Activation Keywords
 
-The server is designed to work seamlessly as a Kiro Power with automatic activation:
-
-#### Automatic Activation Keywords
-
-The power activates automatically when you mention any of these keywords:
+The power / mcp activates automatically when you mention any of these keywords:
 
 - **Core Terms**: "chaos engineering", "fault injection", "resilience testing"
 - **AWS FIS**: "FIS", "AWS FIS", "experiment", "fault injection simulator"  
 - **Failure Testing**: "failure testing", "disaster recovery testing", "chaos"
 - **Related**: "chaos monkey", "chaos testing", "failure simulation"
 
-#### Example Usage
+### Example Usage
 
 Let's walk through a complete workflow to understand how each component works together:
 
@@ -314,12 +245,12 @@ Let's walk through a complete workflow to understand how each component works to
 
 **Component Responsibilities:**
 
-### 🧑‍💻 User
+#### 🧑‍💻 User
 - **Provides**: Natural language description of desired chaos experiment
 - **Receives**: Validated, deployable CloudFormation template
 - **Example**: "Test RDS failover", "Stop EC2 instances in production"
 
-### 🤖 Kiro Agent (MCP Client)
+#### 🤖 Kiro Agent (MCP Client)
 - **Keyword Detection**: Automatically activates on chaos engineering terms
 - **Orchestration**: Coordinates all MCP server interactions (calls all 5 tools)
 - **Cache Management**: Decides when to refresh stale cache data
@@ -327,13 +258,13 @@ Let's walk through a complete workflow to understand how each component works to
 - **LLM Execution**: Agent executes calls to AI models to generate experiment templates
 - **Validation**: Ensures templates are technically valid before delivery
 
-### 🔧 aws-chaos-engineering MCP Server
+#### 🔧 aws-chaos-engineering MCP Server
 - **Cache Management**: Stores FIS capabilities with 24-hour TTL
 - **Template Validation**: Checks action IDs and resource types against AWS capabilities
 - **Agent Instructions**: Provides clear guidance when cache refresh is needed
 - **No Direct AWS Access**: Relies on agent to fetch fresh data via AWS MCP server
 
-### ☁️ AWS MCP Server
+#### ☁️ AWS MCP Server
 - **AWS API Access**: Direct connection to AWS FIS service
 - **Real-time Data**: Fetches current FIS actions and resource types
 - **Authentication**: Handles AWS credentials and permissions
@@ -347,20 +278,7 @@ Let's walk through a complete workflow to understand how each component works to
 
 ### As Standalone MCP Server
 
-For direct MCP client integration:
-
-```json
-{
-  "mcpServers": {
-    "aws-chaos-engineering": {
-      "command": "uvx",
-      "args": ["aws-chaos-engineering"],
-      "disabled": false,
-      "autoApprove": ["get_valid_fis_actions", "validate_fis_template", "refresh_valid_fis_actions_cache"]
-    }
-  }
-}
-```
+For direct MCP client integration, use the configuration from the Configuration section above.
 
 ### Available Tools
 
@@ -536,75 +454,7 @@ User Input → Kiro Agent → aws-chaos-engineering MCP Server → Validated FIS
 
 
 
-## Validation Scope and Limitations
 
-The FIS template validator is designed to check technical compatibility with AWS FIS service capabilities, not business logic or security policies.
-
-### What the Validator Checks ✅
-
-- **Action IDs**: Verifies action IDs exist in current FIS capabilities
-- **Resource Types**: Validates resource types are supported by FIS
-- **Template Structure**: Basic JSON structure and required fields
-- **Action-Resource Compatibility**: Ensures actions can target specified resource types
-
-### What the Validator Does NOT Check ❌
-
-- **IAM Permissions**: Does not validate service roles or user permissions
-- **ARNs and Resource Identifiers**: Does not check if specific resources exist
-- **Business Logic**: Does not validate experiment design or safety
-- **Stop Conditions**: Does not verify CloudWatch alarms or stop condition logic
-- **Resource Tags**: Does not validate tag existence or values
-- **Network Configuration**: Does not check VPC, subnet, or security group settings
-- **Compliance**: Does not enforce organizational policies or compliance rules
-
-### Validation Examples
-
-#### Valid Template (Passes Validation)
-```json
-{
-  "actions": {
-    "StopInstances": {
-      "actionId": "aws:ec2:stop-instances",  // ✅ Valid action ID
-      "targets": {"Instances": "MyInstances"}
-    }
-  },
-  "targets": {
-    "MyInstances": {
-      "resourceType": "aws:ec2:instance",    // ✅ Valid resource type
-      "resourceTags": {"Environment": "test"}
-    }
-  }
-}
-```
-
-#### Invalid Template (Fails Validation)
-```json
-{
-  "actions": {
-    "InvalidAction": {
-      "actionId": "aws:invalid:action",      // ❌ Invalid action ID
-      "targets": {"Resources": "MyResources"}
-    }
-  },
-  "targets": {
-    "MyResources": {
-      "resourceType": "aws:invalid:type",    // ❌ Invalid resource type
-      "resourceArns": ["arn:aws:ec2:us-east-1:123456789012:instance/i-1234567890abcdef0"]
-    }
-  }
-}
-```
-
-### Validation Philosophy
-
-The validator follows the principle of **"fail fast on technical issues, defer to deployment for business logic"**. This means:
-
-1. **Technical Validation**: Catch obvious technical errors early (invalid action IDs, unsupported resource types)
-2. **Business Logic Deferral**: Let AWS FIS service handle business logic validation during deployment
-3. **Security Deferral**: Let IAM and AWS security services handle permission validation
-4. **Resource Existence**: Let AWS APIs validate actual resource existence at runtime
-
-This approach ensures the validator remains focused, fast, and doesn't duplicate AWS service validation logic.
 
 ## Troubleshooting Guide
 
@@ -757,18 +607,7 @@ This approach ensures the validator remains focused, fast, and doesn't duplicate
 **Problem**: Kiro cannot communicate with MCP server
 
 **Solutions**:
-1. **Verify MCP Configuration**:
-   ```json
-   {
-     "mcpServers": {
-       "aws-chaos-engineering": {
-         "command": "uvx",
-         "args": ["aws-chaos-engineering"],
-         "disabled": false
-       }
-     }
-   }
-   ```
+1. **Verify MCP Configuration**: Use the configuration from the Configuration section above
 
 2. **Check Server Status in Kiro**:
    - Open Kiro MCP server panel
@@ -887,14 +726,8 @@ If you encounter cache-related errors, check the MCP server logs for specific er
 # Check Python version
 python --version
 
-# Check installed packages
-pip list | grep -E "(aws-chaos|fastmcp|pydantic)"
-
 # Check AWS CLI version
 aws --version
-
-# Check uvx version
-uvx --version
 ```
 
 #### AWS Connectivity
@@ -904,25 +737,6 @@ aws sts get-caller-identity
 
 # Test FIS service access
 aws fis list-actions --region us-east-1 --no-paginate
-
-# Test different regions
-aws ec2 describe-regions --query 'Regions[].RegionName' --output table
-```
-
-#### Cache Inspection
-Cache files are stored in the locations mentioned above and automatically managed by the server.
-
-#### MCP Server Testing
-```bash
-# Test server startup
-uvx aws-chaos-engineering &
-SERVER_PID=$!
-
-# Send test message
-echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' | nc localhost 3000
-
-# Clean up
-kill $SERVER_PID
 ```
 
 ### Getting Additional Help
@@ -959,36 +773,9 @@ When reporting issues, collect these logs:
 3. **Kiro Documentation**: Check Kiro help and documentation
 4. **GitHub Issues**: Report bugs and feature requests on the project repository
 
-#### Common Error Patterns
 
-| Error Message | Likely Cause | Solution |
-|---------------|--------------|----------|
-| `NoCredentialsError` | AWS credentials not configured | Run `aws configure` |
-| `AccessDenied` | Insufficient IAM permissions | Add FIS permissions to IAM user/role |
-| `Cache file corrupted` | Corrupted cache file | Clear cache directory |
-| `Connection timeout` | Network connectivity issues | Check internet connection and AWS endpoints |
-| `Invalid action ID` | Action not available in region | Check FIS service availability in region |
-| `MCP server not responding` | Server startup failure | Check server logs and dependencies |
 
-## Development
-
-### Development Setup
-
-```bash
-# Clone repository
-git clone <repository-url>
-cd aws-chaos-engineering
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Unix/Linux/macOS
-venv\Scripts\activate     # Windows
-
-# Install in development mode
-pip install -e ".[dev]"
-```
-
-### Running Tests
+## Running Tests
 
 ```bash
 # Run all tests
@@ -1008,36 +795,6 @@ pytest tests/test_complete_agent_workflow.py -v
 python test_integration.py
 ```
 
-### Code Quality
-
-```bash
-# Format code
-black src/
-isort src/
-
-# Type checking
-mypy src/
-
-# Lint code
-flake8 src/
-
-# Run all quality checks
-black src/ && isort src/ && mypy src/ && flake8 src/
-```
-
-### Building and Publishing
-
-```bash
-# Build package
-python -m build
-
-# Check package
-twine check dist/*
-
-# Publish to PyPI (maintainers only)
-twine upload dist/*
-```
-
 ### Project Structure
 
 ```
@@ -1048,17 +805,21 @@ aws-chaos-engineering/
 │       ├── __main__.py          # MCP server entry point
 │       ├── server.py            # MCP tool implementations
 │       ├── fis_cache.py         # Cache management
-│       └── validators.py        # Template validation
+│       ├── validators.py        # Template validation
+│       └── prompt_templates.py  # Template generation
 ├── power/                       # Kiro Power package
 │   ├── POWER.md                 # Kiro Power documentation
 │   ├── mcp.json                 # MCP server configuration
 │   └── steering/                # Kiro Power steering files
 │       ├── getting-started.md
 │       └── advanced-patterns.md
-├── tests/                       # Test suite
+├── tests/                       # Comprehensive test suite
+│   ├── test_integration.py      # Integration tests
+│   ├── test_cache_management.py # Cache functionality tests
+│   ├── test_validation_*.py     # Validation tests
+│   └── test_*_workflow.py       # Workflow tests
 ├── pyproject.toml              # Package configuration
-├── README.md                   # This file
-└── test_integration.py         # Integration tests
+└── README.md                   # This file
 ```
 
 ## Security Considerations
