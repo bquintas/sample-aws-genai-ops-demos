@@ -11,6 +11,7 @@ This repository contains deployable code samples demonstrating practical applica
 | AI-Powered Legacy System Automation | Operations Automation | Automate complex web workflows on legacy systems using cloud-based browser automation with session recording and live monitoring | [operations-automation/ai-legacy-system-browser-automation/](operations-automation/ai-legacy-system-browser-automation/README.md) |
 | AI Password Reset Chatbot | Operations Automation | Conversational password reset with streaming responses, session persistence, and secure Cognito integration for anonymous access | [operations-automation/ai-password-reset-chatbot/](operations-automation/ai-password-reset-chatbot/README.md) |
 | AWS Services Lifecycle Tracker | Operations Automation | Automated monitoring and intelligent categorization of AWS service deprecations with real-time dashboard and admin interface | [operations-automation/aws-services-lifecycle-tracker/](operations-automation/aws-services-lifecycle-tracker/README.md) |
+| AWS GenAI Cost Optimization Kiro Power | Cost Optimization | MCP server for static code analysis of AWS GenAI service usage patterns with cost optimization recommendations and Kiro IDE integration | [cost-optimization/aws-genai-cost-optimization-mcp-server/](cost-optimization/aws-genai-cost-optimization-mcp-server/README.md) |
 | Natural Language Chaos Engineering with AWS FIS | Resilience | Transform natural language descriptions into validated AWS FIS experiment templates with current capabilities and intelligent caching | [resilience/ai-chaos-engineering-with-fis/](resilience/ai-chaos-engineering-with-fis/README.md) |
 
 ## Roadmap (Coming Soon)
@@ -18,7 +19,6 @@ This repository contains deployable code samples demonstrating practical applica
 | Demo Name | Pillar | Description | Status |
 |-----------|--------|-------------|--------|
 | Secure Coding with Kiro Hooks | Security | Automated security analysis in development workflows | Planned |
-| AWS GenAI Cost Optimization Kiro Power | Cost Optimization | MCP server for static code analysis of AWS GenAI service usage patterns with cost optimization recommendations | Planned |
 | Intelligent System Troubleshooting with AWS DevOps Agent | Observability | Identify root causes of system issues and accelerate incident response using AWS DevOps Agent through a realistic Unicorn Rentals microservices architecture | Planned |
 | AWS Health and Support Case Analyzer | Resilience | AI-powered analysis of AWS Health events and Support Cases with intelligent categorization and actionable recommendations | Planned |
 | Agentic Prompt Evaluator | Operations Automation | Agentic AI tool for Bedrock model migration assessment with AgentCore Code Interpreter, automated prompt optimization, and comparative model evaluation | Planned |
@@ -27,7 +27,8 @@ This repository contains deployable code samples demonstrating practical applica
 
 ```
 cost-optimization/
-└── ai-graviton-migration-assessment/
+├── ai-graviton-migration-assessment/
+└── aws-genai-cost-optimization-mcp-server/
 operations-automation/
 ├── ai-documentation-generation/
 ├── ai-legacy-system-browser-automation/
