@@ -259,7 +259,8 @@ class BedrockDetector(BaseDetector):
         """Detect AWS Strands BedrockModel configuration and analyze settings."""
         findings = []
         
-        pattern = r'BedrockModel\s*\(((?:[^()]*|\([^()]*\))*)\)'
+        # ReDoS-safe pattern: Use unrolled loop to prevent exponential backtracking
+        pattern = r'BedrockModel\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)'
         matches = re.finditer(pattern, content, re.DOTALL)
         
         for match in matches:
@@ -1004,7 +1005,8 @@ response = agent(query)''',
         
         # Also check for Strands-style parentheses concatenation with f-strings
         # Pattern: system_prompt=(\n    f"..." \n    "..." \n)
-        paren_pattern = r'system_prompt\s*=\s*\(((?:[^()]*|\([^()]*\))*)\)'
+        # ReDoS-safe pattern: Use unrolled loop to prevent exponential backtracking
+        paren_pattern = r'system_prompt\s*=\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)'
         paren_matches = re.finditer(paren_pattern, content, re.DOTALL)
         
         for match in paren_matches:

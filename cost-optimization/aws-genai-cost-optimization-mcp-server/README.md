@@ -383,7 +383,8 @@ The scanner correctly detects LangChain Bedrock usage (`ChatBedrockConverse`, `C
 - **Positive Feedback**: Confirms when cost optimizations are already in place
 
 ### 🔧 Developer-Friendly
-- **Comprehensive Test Suite**: 23 test files covering all detectors
+- **Comprehensive Test Suite**: 24 test files covering all detectors
+- **Security Testing**: ReDoS vulnerability protection with performance benchmarks
 - **False Positive Mitigation**: Filters validation messages, comments, and docstrings (67% accuracy improvement)
 - **Pattern-Based**: No hardcoded rules, stays relevant as AWS evolves
 - **Generic Detection**: Universal model ID parser works with current and future models
