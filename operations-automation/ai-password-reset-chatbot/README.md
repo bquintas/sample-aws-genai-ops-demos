@@ -178,6 +178,14 @@ ai-password-reset-chatbot/
 ├── scripts/
 │   ├── build-frontend.ps1    # Frontend build (Windows)
 │   └── build-frontend.sh     # Frontend build (macOS/Linux)
+├── tests/                    # Test scripts and validation
+│   ├── simple_test.py        # Basic agent functionality test
+│   ├── test_agent_debug.py   # Agent debugging utilities
+│   ├── test_deployed_agent.py # End-to-end deployment testing
+│   ├── test_session_flow.py  # Session management validation
+│   ├── test_session_persistence.py # Session state testing
+│   ├── test_streaming_debug.py # Streaming response testing
+│   └── test_streaming_simulation.py # Streaming simulation
 ├── deploy-all.ps1            # One-command deploy (Windows)
 ├── deploy-all.sh             # One-command deploy (macOS/Linux)
 ├── ARCHITECTURE.md           # Technical design documentation
