@@ -21,6 +21,7 @@ export class AuthStack extends cdk.Stack {
             userPoolName: 'aws-services-lifecycle-tracker-admin-users',
             selfSignUpEnabled: false, // DISABLED - Admin only
             signInAliases: {
+                username: true,
                 email: true,
             },
             autoVerify: {
