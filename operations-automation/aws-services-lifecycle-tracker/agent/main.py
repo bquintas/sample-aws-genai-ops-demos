@@ -145,7 +145,9 @@ def send_extraction_notification(result: dict) -> None:
         if not topic_arn:
             return
         
-        sns = boto3.client('sns')
+        # Use region from environment
+        region = os.environ.get('AWS_REGION') or os.environ.get('AWS_DEFAULT_REGION')
+        sns = boto3.client('sns', region_name=region) if region else boto3.client('sns')
         
         successful = result['successful_extractions']
         total = result['total_services_processed']
