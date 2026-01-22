@@ -9,8 +9,10 @@ from decimal import Decimal
 from typing import Dict, List, Any
 
 
-# Initialize DynamoDB
-dynamodb = boto3.resource('dynamodb')
+# Initialize DynamoDB with explicit region from environment
+# AgentCore runs in the same region as the tables
+region = os.environ.get('AWS_REGION') or os.environ.get('AWS_DEFAULT_REGION')
+dynamodb = boto3.resource('dynamodb', region_name=region) if region else boto3.resource('dynamodb')
 LIFECYCLE_TABLE_NAME = os.environ.get('LIFECYCLE_TABLE_NAME', 'aws-services-lifecycle')
 CONFIG_TABLE_NAME = os.environ.get('CONFIG_TABLE_NAME', 'service-extraction-config')
 

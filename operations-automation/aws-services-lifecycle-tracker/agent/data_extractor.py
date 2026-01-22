@@ -3,6 +3,7 @@ Data Extractor for AWS Services Lifecycle Tracker
 Combines HTML table parsing with LLM-guided extraction for high-quality data extraction
 Handles the low-level extraction mechanics: HTML parsing, LLM processing, and data normalization
 """
+import os
 import requests
 from bs4 import BeautifulSoup
 import json
@@ -34,8 +35,10 @@ class DataExtractor:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
         
-        # Initialize Bedrock client
-        self.bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+        # Initialize Bedrock client - use us-east-1 for Nova models availability
+        # Note: Bedrock models may have different regional availability than DynamoDB tables
+        bedrock_region = os.environ.get('BEDROCK_REGION', 'us-east-1')
+        self.bedrock = boto3.client('bedrock-runtime', region_name=bedrock_region)
     
     def extract_service_data(self, service_name: str, force_refresh: bool = False, override_urls: List[str] = None) -> Dict[str, Any]:
         """
