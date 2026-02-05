@@ -14,6 +14,7 @@ import boto3
 from botocore.exceptions import ClientError
 from typing import Dict, List, Any, Optional
 
+from shared.utils import get_region
 from database_reads import get_service_config
 from service_filters import apply_service_filters
 
@@ -35,9 +36,8 @@ class DataExtractor:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
         
-        # Initialize Bedrock client - use us-east-1 for Nova models availability
-        # Note: Bedrock models may have different regional availability than DynamoDB tables
-        bedrock_region = os.environ.get('BEDROCK_REGION', 'us-east-1')
+        # Initialize Bedrock client using deployment region
+        bedrock_region = get_region()
         self.bedrock = boto3.client('bedrock-runtime', region_name=bedrock_region)
     
     def extract_service_data(self, service_name: str, force_refresh: bool = False, override_urls: List[str] = None) -> Dict[str, Any]:

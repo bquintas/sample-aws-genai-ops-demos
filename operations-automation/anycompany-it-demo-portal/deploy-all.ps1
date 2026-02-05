@@ -1,6 +1,5 @@
 # PowerShell deployment script for AnyCompany IT Portal Demo
 param(
-    [string]$Region = "us-east-1",
     [switch]$SkipBuild,
     [switch]$DestroyInfra,
     [switch]$PopulateData
@@ -14,7 +13,7 @@ if ($DestroyInfra) {
     Write-Host "Destroying infrastructure..." -ForegroundColor Red
     
     # Use shared CDK destroy script
-    & "..\..\shared\scripts\deploy-cdk.ps1" -CdkDirectory "infrastructure/cdk" -DestroyStack
+    & "..\..\shared\scripts\deploy-cdk.ps1" -CdkDirectory "infrastructure\cdk" -DestroyStack
     
     Write-Host "Infrastructure destruction completed" -ForegroundColor Green
     exit 0
@@ -24,9 +23,12 @@ if ($DestroyInfra) {
 Write-Host "Checking prerequisites..." -ForegroundColor Yellow
 & "..\..\shared\scripts\check-prerequisites.ps1" -RequireCDK
 
+# Use region from prerequisites check
+$currentRegion = $global:AWS_REGION
+
 # Deploy CDK infrastructure using shared script
 Write-Host "Deploying AWS infrastructure..." -ForegroundColor Yellow
-& "..\..\shared\scripts\deploy-cdk.ps1" -CdkDirectory "infrastructure/cdk"
+& "..\..\shared\scripts\deploy-cdk.ps1" -CdkDirectory "infrastructure\cdk"
 if ($LASTEXITCODE -ne 0) {
     Write-Error "CDK deployment failed"
     exit 1
@@ -35,8 +37,8 @@ if ($LASTEXITCODE -ne 0) {
 # Get CDK outputs
 Write-Host "Getting CDK stack outputs..." -ForegroundColor Yellow
 
-# Get outputs using AWS CLI
-$stackName = "AnyCompanyITPortalStack"
+# Get outputs using AWS CLI with region-specific stack name
+$stackName = "AnyCompanyITPortalStack-$currentRegion"
 $outputs = aws cloudformation describe-stacks --stack-name $stackName --query "Stacks[0].Outputs" --output json --no-cli-pager 2>&1
 
 if ($LASTEXITCODE -eq 0) {
@@ -79,10 +81,10 @@ window.APP_CONFIG = {
     apiBaseUrl: '$env:API_ENDPOINT'
 };
 "@
-    $configContent | Out-File -FilePath "frontend/config.js" -Encoding UTF8
+    $configContent | Out-File -FilePath "frontend\config.js" -Encoding UTF8
     Write-Host "Generated config.js with API endpoint: $env:API_ENDPOINT" -ForegroundColor Green
     
-    aws s3 sync frontend/ s3://$env:S3_BUCKET --delete --no-cli-pager
+    aws s3 sync frontend\ s3://$env:S3_BUCKET --delete --no-cli-pager
     
     # Invalidate CloudFront cache
     if ($env:CLOUDFRONT_ID) {
@@ -94,7 +96,7 @@ window.APP_CONFIG = {
 # Populate mock data
 if ($PopulateData) {
     Write-Host "Populating mock data..." -ForegroundColor Yellow
-    python scripts/seed-data.py $Region
+    python utils\seed-data.py $currentRegion
 }
 
 Write-Host "=== Deployment Complete ===" -ForegroundColor Green
@@ -108,4 +110,4 @@ Write-Host "2. Navigate between different portals to see the mock data" -Foregro
 Write-Host "3. Use this environment for AI automation testing" -ForegroundColor White
 Write-Host ""
 Write-Host "To destroy the infrastructure later, run:" -ForegroundColor Yellow
-Write-Host ".\scripts\deploy.ps1 -DestroyInfra" -ForegroundColor White
+Write-Host ".\deploy-all.ps1 -DestroyInfra" -ForegroundColor White

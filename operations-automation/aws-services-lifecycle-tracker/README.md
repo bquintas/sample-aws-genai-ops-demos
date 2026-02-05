@@ -146,14 +146,17 @@ chmod +x deploy-all.sh scripts/build-frontend.sh
 
 5. **Command-line testing (optional):**
    ```bash
+   # Get your configured region
+   region=$(aws configure get region)
+   
    # Test direct agent invocation (single service)
    aws bedrock-agentcore invoke-agent-runtime \
-     --agent-runtime-arn $(aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerRuntime --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text) \
+     --agent-runtime-arn $(aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerRuntime-$region" --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text) \
      --payload '{"service_name": "lambda", "force_refresh": true}'
    
    # Test bulk extraction (all services)
    aws bedrock-agentcore invoke-agent-runtime \
-     --agent-runtime-arn $(aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerRuntime --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text) \
+     --agent-runtime-arn $(aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerRuntime-$region" --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text) \
      --payload '{"services": "all", "force_refresh": true}'
    
    # View extracted data
@@ -169,12 +172,12 @@ chmod +x deploy-all.sh scripts/build-frontend.sh
 
 | Stack Name | Purpose | Key Resources | Dependencies |
 |------------|---------|---------------|--------------|
-| **AWSServicesLifecycleTrackerInfra** | Build infrastructure | ECR Repository, CodeBuild Project, IAM Roles, S3 Bucket | None |
-| **AWSServicesLifecycleTrackerAuth** | Authentication | Cognito User Pool, User Pool Client, Identity Pool, IAM Role | None |
-| **AWSServicesLifecycleTrackerData** | Data storage | DynamoDB Tables (lifecycle data + service configs) | None |
-| **AWSServicesLifecycleTrackerRuntime** | Agent runtime | AgentCore Runtime with hybrid extraction logic | Infra, Auth, Data |
-| **AWSServicesLifecycleTrackerScheduler** | Automated scheduling | EventBridge Scheduler, SNS Topic, SQS Dead Letter Queue | Runtime |
-| **AWSServicesLifecycleTrackerFrontend** | Admin interface | S3 Bucket, CloudFront Distribution, React UI | Auth, Runtime, Data |
+| **AWSServicesLifecycleTrackerInfra-{region}** | Build infrastructure | ECR Repository, CodeBuild Project, IAM Roles, S3 Bucket | None |
+| **AWSServicesLifecycleTrackerAuth-{region}** | Authentication | Cognito User Pool, User Pool Client, Identity Pool, IAM Role | None |
+| **AWSServicesLifecycleTrackerData-{region}** | Data storage | DynamoDB Tables (lifecycle data + service configs) | None |
+| **AWSServicesLifecycleTrackerRuntime-{region}** | Agent runtime | AgentCore Runtime with hybrid extraction logic | Infra, Auth, Data |
+| **AWSServicesLifecycleTrackerScheduler-{region}** | Automated scheduling | EventBridge Scheduler, SNS Topic, SQS Dead Letter Queue | Runtime |
+| **AWSServicesLifecycleTrackerFrontend-{region}** | Admin interface | S3 Bucket, CloudFront Distribution, React UI | Auth, Runtime, Data |
 
 ## Project Structure
 
@@ -357,7 +360,8 @@ Adding a new service follows a simple two-step process:
 2. **Redeploy the data stack** to update DynamoDB:
 ```bash
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerData --no-cli-pager
+region=$(aws configure get region)
+npx cdk deploy "AWSServicesLifecycleTrackerData-$region" --no-cli-pager
 ```
 
 3. **Test extraction** via the admin UI or CLI:
@@ -478,27 +482,27 @@ The `deploy-all.ps1` script orchestrates the complete deployment:
 5. **Install frontend dependencies** (frontend/node_modules, includes amazon-cognito-identity-js)
 6. **Create placeholder frontend build** (for initial deployment)
 7. **Bootstrap CDK environment** (sets up CDK deployment resources in your AWS account/region)
-8. **Deploy AWSServicesLifecycleTrackerInfra** - Creates build pipeline resources:
+8. **Deploy AWSServicesLifecycleTrackerInfra-{region}** - Creates build pipeline resources:
    - ECR repository for agent container images
    - IAM role for AgentCore runtime
    - S3 bucket for CodeBuild sources
    - CodeBuild project for ARM64 builds
-9. **Deploy AWSServicesLifecycleTrackerData** - Creates data storage:
+9. **Deploy AWSServicesLifecycleTrackerData-{region}** - Creates data storage:
    - DynamoDB table for lifecycle data (`aws-services-lifecycle`)
    - DynamoDB table for service configurations (`service-extraction-config`)
    - Global Secondary Indexes for efficient querying
-10. **Deploy AWSServicesLifecycleTrackerAuth** - Creates authentication resources:
+10. **Deploy AWSServicesLifecycleTrackerAuth-{region}** - Creates authentication resources:
     - Cognito User Pool (email/password, admin-only, no self-signup)
     - User Pool Client for frontend authentication
     - Cognito Identity Pool for AWS credential exchange
     - IAM Role with AgentCore invocation permissions
     - Password policy (min 8 chars, uppercase, lowercase, digit)
-11. **Deploy AWSServicesLifecycleTrackerRuntime** - Deploys agent with built-in auth:
+11. **Deploy AWSServicesLifecycleTrackerRuntime-{region}** - Deploys agent with built-in auth:
     - Uploads agent source code to S3
     - Triggers CodeBuild via Custom Resource
     - **Lambda waiter polls CodeBuild** (5-10 minutes)
     - Creates AgentCore runtime with IAM authentication and hybrid extraction
-12. **Build frontend with full configuration, then deploy AWSServicesLifecycleTrackerFrontend**:
+12. **Build frontend with full configuration, then deploy AWSServicesLifecycleTrackerFrontend-{region}**:
     - Retrieves all stack outputs (AgentCore ARN, Cognito config)
     - Builds React admin interface with injected configuration
     - S3 bucket for static hosting
@@ -749,56 +753,64 @@ npx cdk bootstrap --no-cli-pager
 ### 2. Deploy Infrastructure
 ```bash
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerInfra --no-cli-pager
+npx cdk deploy AWSServicesLifecycleTrackerInfra-{region} --no-cli-pager
 ```
 
 ### 3. Deploy Data Storage
 ```bash
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerData --no-cli-pager
+npx cdk deploy AWSServicesLifecycleTrackerData-{region} --no-cli-pager
 ```
 
 ### 4. Deploy Authentication
 ```bash
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerAuth --no-cli-pager
+npx cdk deploy AWSServicesLifecycleTrackerAuth-{region} --no-cli-pager
 ```
 
 ### 5. Deploy Runtime (triggers build automatically)
 ```bash
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerRuntime --no-cli-pager
+npx cdk deploy AWSServicesLifecycleTrackerRuntime-{region} --no-cli-pager
 ```
 *Note: This will pause for 5-10 minutes while CodeBuild runs*
 
 ### 6. Deploy Scheduler
 ```bash
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerScheduler --no-cli-pager
+npx cdk deploy AWSServicesLifecycleTrackerScheduler-{region} --no-cli-pager
 ```
 
 ### 7. Deploy Frontend & Admin API
 
 **Windows (PowerShell):**
 ```powershell
-$agentRuntimeArn = aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerRuntime --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text --no-cli-pager
-$region = aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerRuntime --query "Stacks[0].Outputs[?OutputKey=='Region'].OutputValue" --output text --no-cli-pager
-$userPoolId = aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" --output text --no-cli-pager
-$userPoolClientId = aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" --output text --no-cli-pager
+$region = aws configure get region
+$stackNameRuntime = "AWSServicesLifecycleTrackerRuntime-$region"
+$stackNameAuth = "AWSServicesLifecycleTrackerAuth-$region"
+$stackNameFrontend = "AWSServicesLifecycleTrackerFrontend-$region"
+
+$agentRuntimeArn = aws cloudformation describe-stacks --stack-name $stackNameRuntime --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text --no-cli-pager
+$userPoolId = aws cloudformation describe-stacks --stack-name $stackNameAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" --output text --no-cli-pager
+$userPoolClientId = aws cloudformation describe-stacks --stack-name $stackNameAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" --output text --no-cli-pager
 .\scripts\build-frontend.ps1 -UserPoolId $userPoolId -UserPoolClientId $userPoolClientId -AgentRuntimeArn $agentRuntimeArn -Region $region
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerFrontend --no-cli-pager
+npx cdk deploy $stackNameFrontend --no-cli-pager
 ```
 
 **macOS/Linux (Bash):**
 ```bash
-AGENT_RUNTIME_ARN=$(aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerRuntime --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text --no-cli-pager)
-REGION=$(aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerRuntime --query "Stacks[0].Outputs[?OutputKey=='Region'].OutputValue" --output text --no-cli-pager)
-USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" --output text --no-cli-pager)
-USER_POOL_CLIENT_ID=$(aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" --output text --no-cli-pager)
-./scripts/build-frontend.sh "$USER_POOL_ID" "$USER_POOL_CLIENT_ID" "$AGENT_RUNTIME_ARN" "$REGION"
+region=$(aws configure get region)
+stack_name_runtime="AWSServicesLifecycleTrackerRuntime-$region"
+stack_name_auth="AWSServicesLifecycleTrackerAuth-$region"
+stack_name_frontend="AWSServicesLifecycleTrackerFrontend-$region"
+
+AGENT_RUNTIME_ARN=$(aws cloudformation describe-stacks --stack-name "$stack_name_runtime" --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text --no-cli-pager)
+USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name "$stack_name_auth" --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" --output text --no-cli-pager)
+USER_POOL_CLIENT_ID=$(aws cloudformation describe-stacks --stack-name "$stack_name_auth" --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" --output text --no-cli-pager)
+./scripts/build-frontend.sh "$USER_POOL_ID" "$USER_POOL_CLIENT_ID" "$AGENT_RUNTIME_ARN" "$region"
 cd cdk
-npx cdk deploy AWSServicesLifecycleTrackerFrontend --no-cli-pager
+npx cdk deploy "$stack_name_frontend" --no-cli-pager
 ```
 
 ## Customizing the System
@@ -885,13 +897,14 @@ The deployment will:
 ## Cleanup
 
 ```bash
+region=$(aws configure get region)
 cd cdk
-npx cdk destroy AWSServicesLifecycleTrackerFrontend --no-cli-pager
-npx cdk destroy AWSServicesLifecycleTrackerScheduler --no-cli-pager
-npx cdk destroy AWSServicesLifecycleTrackerRuntime --no-cli-pager
-npx cdk destroy AWSServicesLifecycleTrackerAuth --no-cli-pager
-npx cdk destroy AWSServicesLifecycleTrackerData --no-cli-pager
-npx cdk destroy AWSServicesLifecycleTrackerInfra --no-cli-pager
+npx cdk destroy "AWSServicesLifecycleTrackerFrontend-$region" --no-cli-pager
+npx cdk destroy "AWSServicesLifecycleTrackerScheduler-$region" --no-cli-pager
+npx cdk destroy "AWSServicesLifecycleTrackerRuntime-$region" --no-cli-pager
+npx cdk destroy "AWSServicesLifecycleTrackerAuth-$region" --no-cli-pager
+npx cdk destroy "AWSServicesLifecycleTrackerData-$region" --no-cli-pager
+npx cdk destroy "AWSServicesLifecycleTrackerInfra-$region" --no-cli-pager
 ```
 
 **Note:** Cognito User Pool will be deleted along with all user accounts.
@@ -907,8 +920,9 @@ aws logs tail /aws/bedrock-agentcore/runtimes/strands_agent-* --follow --no-cli-
 ### "Image not found in ECR"
 Redeploy runtime stack - it will trigger a new build:
 ```bash
+region=$(aws configure get region)
 cd cdk
-npx cdk deploy AgentCoreRuntime --no-cli-pager
+npx cdk deploy "AWSServicesLifecycleTrackerRuntime-$region" --no-cli-pager
 ```
 
 ### "Build timeout after 15 minutes"
@@ -923,10 +937,14 @@ aws logs tail /aws/codebuild/bedrock-agentcore-strands-agent-builder --follow --
 ### Frontend shows errors
 Verify AgentCore Runtime ARN and Cognito config are correct:
 ```bash
-aws cloudformation describe-stacks --stack-name AgentCoreRuntime --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text --no-cli-pager
-aws cloudformation describe-stacks --stack-name AgentCoreRuntime --query "Stacks[0].Outputs[?OutputKey=='Region'].OutputValue" --output text --no-cli-pager
-aws cloudformation describe-stacks --stack-name AgentCoreAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" --output text --no-cli-pager
-aws cloudformation describe-stacks --stack-name AgentCoreAuth --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" --output text --no-cli-pager
+region=$(aws configure get region)
+stack_name_runtime="AWSServicesLifecycleTrackerRuntime-$region"
+stack_name_auth="AWSServicesLifecycleTrackerAuth-$region"
+
+aws cloudformation describe-stacks --stack-name "$stack_name_runtime" --query "Stacks[0].Outputs[?OutputKey=='AgentRuntimeArn'].OutputValue" --output text --no-cli-pager
+aws cloudformation describe-stacks --stack-name "$stack_name_runtime" --query "Stacks[0].Outputs[?OutputKey=='Region'].OutputValue" --output text --no-cli-pager
+aws cloudformation describe-stacks --stack-name "$stack_name_auth" --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" --output text --no-cli-pager
+aws cloudformation describe-stacks --stack-name "$stack_name_auth" --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" --output text --no-cli-pager
 ```
 
 ### Email verification not received
@@ -938,12 +956,13 @@ aws cloudformation describe-stacks --stack-name AgentCoreAuth --query "Stacks[0]
 ### Verify deployment status
 Check all stack statuses:
 ```bash
-aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerInfra --query "Stacks[0].StackStatus" --no-cli-pager
-aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerData --query "Stacks[0].StackStatus" --no-cli-pager
-aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerAuth --query "Stacks[0].StackStatus" --no-cli-pager
-aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerRuntime --query "Stacks[0].StackStatus" --no-cli-pager
-aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerScheduler --query "Stacks[0].StackStatus" --no-cli-pager
-aws cloudformation describe-stacks --stack-name AWSServicesLifecycleTrackerFrontend --query "Stacks[0].StackStatus" --no-cli-pager
+region=$(aws configure get region)
+aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerInfra-$region" --query "Stacks[0].StackStatus" --no-cli-pager
+aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerData-$region" --query "Stacks[0].StackStatus" --no-cli-pager
+aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerAuth-$region" --query "Stacks[0].StackStatus" --no-cli-pager
+aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerRuntime-$region" --query "Stacks[0].StackStatus" --no-cli-pager
+aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerScheduler-$region" --query "Stacks[0].StackStatus" --no-cli-pager
+aws cloudformation describe-stacks --stack-name "AWSServicesLifecycleTrackerFrontend-$region" --query "Stacks[0].StackStatus" --no-cli-pager
 ```
 
 ### Monitor automated extractions

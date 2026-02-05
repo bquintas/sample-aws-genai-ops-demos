@@ -4,7 +4,6 @@
 
 set -e
 
-REGION="us-east-1"
 SKIP_BUILD=false
 DESTROY_INFRA=false
 POPULATE_DATA=false
@@ -12,10 +11,6 @@ POPULATE_DATA=false
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --region)
-            REGION="$2"
-            shift 2
-            ;;
         --skip-build)
             SKIP_BUILD=true
             shift
@@ -28,8 +23,25 @@ while [[ $# -gt 0 ]]; do
             POPULATE_DATA=true
             shift
             ;;
+        -h|--help)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Deploy AnyCompany IT Portal Demo"
+            echo ""
+            echo "Options:"
+            echo "  --skip-build       Skip building frontend"
+            echo "  --destroy-infra    Destroy infrastructure"
+            echo "  --populate-data    Populate mock data after deployment"
+            echo "  -h, --help         Show this help message"
+            echo ""
+            echo "Notes:"
+            echo "  This script uses the AWS region configured in your AWS CLI profile."
+            echo "  To set your region: aws configure set region <your-region>"
+            exit 0
+            ;;
         *)
             echo "Unknown option $1"
+            echo "Run '$0 --help' for usage information"
             exit 1
             ;;
     esac
@@ -51,6 +63,10 @@ fi
 echo "Checking prerequisites..."
 ../../shared/scripts/check-prerequisites.sh --require-cdk
 
+# Get region using shared utility
+source ../../shared/utils/get-aws-region.sh
+CURRENT_REGION=$(get_aws_region)
+
 # Deploy CDK infrastructure using shared script
 echo "Deploying AWS infrastructure..."
 ../../shared/scripts/deploy-cdk.sh --cdk-directory infrastructure/cdk
@@ -63,8 +79,8 @@ fi
 # Get CDK outputs
 echo "Getting CDK stack outputs..."
 
-# Get outputs using AWS CLI
-STACK_NAME="AnyCompanyITPortalStack"
+# Get outputs using AWS CLI with region-specific stack name
+STACK_NAME="AnyCompanyITPortalStack-$CURRENT_REGION"
 OUTPUTS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs" --output json --no-cli-pager 2>&1)
 
 if [ $? -eq 0 ]; then
@@ -108,7 +124,7 @@ fi
 # Populate mock data
 if [ "$POPULATE_DATA" = true ]; then
     echo "Populating mock data..."
-    python3 scripts/seed-data.py "$REGION"
+    python3 utils/seed-data.py "$CURRENT_REGION"
 fi
 
 echo "=== Deployment Complete ==="
@@ -122,4 +138,4 @@ echo "2. Navigate between different portals to see the mock data"
 echo "3. Use this environment for AI automation testing"
 echo ""
 echo "To destroy the infrastructure later, run:"
-echo "./scripts/deploy.sh --destroy-infra"
+echo "./deploy-all.sh --destroy-infra"

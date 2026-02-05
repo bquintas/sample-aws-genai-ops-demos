@@ -117,17 +117,26 @@ if ($versionMatch) {
 
 # Check AWS region configuration
 Write-Host "`nChecking AWS region configuration..." -ForegroundColor Yellow
-$currentRegion = aws configure get region
+
+# Check environment variable first (overrides config file, matching AWS CLI behavior)
+$currentRegion = $env:AWS_DEFAULT_REGION
+if ([string]::IsNullOrEmpty($currentRegion)) {
+    # Fall back to AWS CLI configuration
+    $currentRegion = aws configure get region 2>$null
+}
+
 if ([string]::IsNullOrEmpty($currentRegion)) {
     Write-Host "      ❌ No AWS region configured" -ForegroundColor Red
     Write-Host ""
-    Write-Host "      Please configure your AWS region using:" -ForegroundColor Yellow
-    Write-Host "        aws configure set region <your-region>" -ForegroundColor Cyan
+    Write-Host "      Please configure your AWS region using one of these methods:" -ForegroundColor Yellow
+    Write-Host "        1. Configure AWS CLI: aws configure set region <your-region>" -ForegroundColor Cyan
+    Write-Host "        2. Set environment variable: `$env:AWS_DEFAULT_REGION = 'us-east-1'" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "      For supported regions, see AWS service documentation" -ForegroundColor Gray
     exit 1
 }
-Write-Host "      Target region: $currentRegion" -ForegroundColor Gray
+
+Write-Host "      ✓ Region configured: $currentRegion" -ForegroundColor Green
 
 # Check specific AWS service availability (if specified)
 if (-not $SkipServiceCheck -and -not [string]::IsNullOrEmpty($RequiredService)) {

@@ -9,14 +9,45 @@
 
 param(
     [switch]$SkipSetup = $false,
-    [string]$Region = "us-east-1",
-    [switch]$DestroyInfra = $false
+    [switch]$DestroyInfra = $false,
+    [switch]$Help = $false
 )
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $CdkDir = Join-Path $ScriptDir "infrastructure\cdk"
 $SharedScriptsDir = Join-Path $ScriptDir "..\..\shared\scripts"
+
+# Show help if requested
+if ($Help) {
+    Write-Host ""
+    Write-Host "AI-Powered Legacy System Automation with AgentCore Browser Tool" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Usage:" -ForegroundColor Yellow
+    Write-Host "  .\run-demo.ps1 [-SkipSetup] [-DestroyInfra] [-Help]"
+    Write-Host ""
+    Write-Host "Parameters:" -ForegroundColor Yellow
+    Write-Host "  -SkipSetup       Skip prerequisite checks and infrastructure deployment"
+    Write-Host "  -DestroyInfra    Destroy CDK infrastructure and exit"
+    Write-Host "  -Help            Show this help message"
+    Write-Host ""
+    Write-Host "Examples:" -ForegroundColor Yellow
+    Write-Host "  .\run-demo.ps1                    # Full setup and demo"
+    Write-Host "  .\run-demo.ps1 -SkipSetup         # Skip setup, use existing infrastructure"
+    Write-Host "  .\run-demo.ps1 -DestroyInfra      # Clean up infrastructure"
+    Write-Host ""
+    Write-Host "Region Configuration:" -ForegroundColor Yellow
+    Write-Host "  The script uses your configured AWS region from:"
+    Write-Host "  - AWS CLI configuration (aws configure get region)"
+    Write-Host "  - Or AWS_DEFAULT_REGION environment variable"
+    Write-Host ""
+    Write-Host "  If no region is configured, the script will fail with an error."
+    Write-Host "  Configure your region: aws configure set region <your-region>"
+    Write-Host ""
+    Write-Host "Note: PowerShell uses single dash (-) for parameters, not double dash (--)" -ForegroundColor Gray
+    Write-Host ""
+    exit 0
+}
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -42,9 +73,6 @@ if (-not $SkipSetup) {
     Write-Host "[SETUP] Running shared prerequisites check..." -ForegroundColor Yellow
     Write-Host ""
     
-    # Set region first
-    aws configure set region $Region
-    
     # Call shared prerequisites script with required checks
     & "$SharedScriptsDir\check-prerequisites.ps1" `
         -RequiredService "agentcore-browser" `
@@ -65,6 +93,14 @@ if (-not $SkipSetup) {
     Write-Host ""
     Write-Host "[SETUP] Complete!" -ForegroundColor Green
     Write-Host ""
+}
+
+# Get region from AWS CLI configuration
+$Region = aws configure get region 2>$null
+if ([string]::IsNullOrEmpty($Region)) {
+    Write-Host "ERROR: AWS region not configured" -ForegroundColor Red
+    Write-Host "Please configure your AWS region: aws configure set region <your-region>" -ForegroundColor Yellow
+    exit 1
 }
 
 # ============================================================
@@ -90,8 +126,9 @@ if ($SkipSetup) {
 # Get outputs from CloudFormation
 Write-Host ""
 Write-Host "Getting stack outputs..." -ForegroundColor Yellow
-$BrowserId = aws cloudformation describe-stacks --stack-name LegacySystemAutomationAgentCore --region $Region --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='BrowserId'].OutputValue" --output text 2>$null
-$RecordingsBucket = aws cloudformation describe-stacks --stack-name LegacySystemAutomationAgentCore --region $Region --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='RecordingsBucketName'].OutputValue" --output text 2>$null
+$StackName = "LegacySystemAutomationAgentCore-$Region"
+$BrowserId = aws cloudformation describe-stacks --stack-name $StackName --region $Region --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='BrowserId'].OutputValue" --output text 2>$null
+$RecordingsBucket = aws cloudformation describe-stacks --stack-name $StackName --region $Region --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='RecordingsBucketName'].OutputValue" --output text 2>$null
 
 if ([string]::IsNullOrEmpty($BrowserId) -or [string]::IsNullOrEmpty($RecordingsBucket)) {
     Write-Host "      ❌ Failed to get stack outputs" -ForegroundColor Red
@@ -106,7 +143,7 @@ Write-Host "      Recordings: s3://$RecordingsBucket/browser-recordings/" -Foreg
 Write-Host ""
 
 # ============================================================
-# STEP 3: Create Nova Act Workflow Definition (with S3 for step data)
+# STEP 4: Create Nova Act Workflow Definition (with S3 for step data)
 # ============================================================
 Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 Write-Host "[WORKFLOW] Creating Nova Act workflow definition..." -ForegroundColor Yellow
@@ -138,7 +175,7 @@ if ($exists) {
 Write-Host ""
 
 # ============================================================
-# STEP 4: Display AWS Console URLs
+# STEP 5: Display AWS Console URLs
 # ============================================================
 Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 Write-Host "[AWS CONSOLE] Monitor your automation" -ForegroundColor Cyan
@@ -155,7 +192,7 @@ Write-Host "     → View workflow execution history, acts and steps details" -F
 Write-Host ""
 
 # ============================================================
-# STEP 5: Run Demo
+# STEP 6: Run Demo
 # ============================================================
 Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 Write-Host "[DEMO] Running automation on Nova Act Gym (Cloud Browser)..." -ForegroundColor Yellow

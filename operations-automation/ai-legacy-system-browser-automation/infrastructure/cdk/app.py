@@ -10,16 +10,20 @@ Deploys:
 """
 
 import aws_cdk as cdk
+from shared.utils import get_region
 from stack import LegacySystemAutomationStack
 
 app = cdk.App()
 
+# Get region using shared utility
+region = get_region()
+
 LegacySystemAutomationStack(
     app,
-    "LegacySystemAutomationAgentCore",
+    f"LegacySystemAutomationAgentCore-{region}",
     description="AgentCore Browser Tool for Legacy System Automation Demo (uksb-do9bhieqqh)(tag:legacy-automation,operations-automation)",
     env=cdk.Environment(
-        region="us-east-1"
+        region=region
     )
 )
 

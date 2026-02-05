@@ -48,6 +48,8 @@ This demo showcases how GenAI can automate workflows on legacy systems that lack
 
 ```
 anycompany-it-demo-portal/
+├── deploy-all.ps1                # PowerShell deployment script
+├── deploy-all.sh                 # Bash deployment script
 ├── frontend/                     # Static HTML portal implementations
 │   ├── index.html                # Main portal selector (CloudScape style)
 │   ├── itsm.html                 # IT Service Management portal
@@ -58,11 +60,9 @@ anycompany-it-demo-portal/
 │   ├── app.py                    # CDK application entry point
 │   ├── stack.py                  # Main infrastructure stack
 │   └── requirements.txt          # Python dependencies
-├── scripts/                      # Deployment and utility scripts
-│   ├── deploy.ps1                # PowerShell deployment script
-│   ├── deploy.sh                 # Bash deployment script
-│   └── seed-data.py              # Mock data population script
-└── .kiro/steering/               # Development guidelines and best practices
+└── utils/                        # Utility scripts and mock data
+    ├── seed-data.py              # Mock data population script
+    └── mock_data/                # Mock data files
 ```
 
 ## Quick Start
@@ -77,13 +77,13 @@ anycompany-it-demo-portal/
 ```powershell
 # PowerShell (Windows)
 cd operations-automation/anycompany-it-demo-portal
-.\scripts\deploy.ps1 -PopulateData
+.\deploy-all.ps1 -PopulateData
 ```
 
 ```bash
 # Bash (Linux/macOS)
 cd operations-automation/anycompany-it-demo-portal
-./scripts/deploy.sh --populate-data
+./deploy-all.sh --populate-data
 ```
 
 **This deployment will:**
@@ -381,12 +381,12 @@ To destroy all AWS resources and avoid ongoing charges:
 
 ```powershell
 # PowerShell (Windows)
-.\scripts\deploy.ps1 -DestroyInfra
+.\deploy-all.ps1 -DestroyInfra
 ```
 
 ```bash
 # Bash (Linux/macOS)
-./scripts/deploy.sh --destroy-infra
+./deploy-all.sh --destroy-infra
 ```
 
 This will remove all CloudFormation stacks, S3 buckets, DynamoDB tables, and associated resources.
@@ -495,3 +495,16 @@ This enables measurement of usage and adoption patterns through the AWS Solution
 **Infrastructure**: AWS CDK, DynamoDB, Lambda, API Gateway, S3, CloudFront  
 **Deployment Time**: 5-10 minutes  
 **Estimated Monthly Cost**: $3-13 USD
+
+
+## Contributing
+
+We welcome community contributions! Please see [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
+
+## Security
+
+See [CONTRIBUTING](../../CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the [LICENSE](../../LICENSE) file.

@@ -41,6 +41,11 @@ if [ -z "$CDK_DIRECTORY" ]; then
     exit 1
 fi
 
+# Set PYTHONPATH to include shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+export PYTHONPATH="$REPO_ROOT"
+
 # Get AWS account and region
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text --no-cli-pager)
 CURRENT_REGION=$(aws configure get region)

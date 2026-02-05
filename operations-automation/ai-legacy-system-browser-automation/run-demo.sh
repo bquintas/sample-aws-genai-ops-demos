@@ -12,7 +12,6 @@ set -e
 
 # Default values
 SKIP_SETUP=false
-REGION="us-east-1"
 DESTROY_INFRA=false
 
 # Parse arguments
@@ -22,24 +21,38 @@ while [[ $# -gt 0 ]]; do
             SKIP_SETUP=true
             shift
             ;;
-        --region)
-            REGION="$2"
-            shift 2
-            ;;
         --destroy-infra)
             DESTROY_INFRA=true
             shift
             ;;
         -h|--help)
-            echo "Usage: $0 [options]"
+            echo ""
+            echo "AI-Powered Legacy System Automation with AgentCore Browser Tool"
+            echo ""
+            echo "Usage:"
+            echo "  $0 [--skip-setup] [--destroy-infra] [--help]"
             echo ""
             echo "Options:"
-            echo "  --skip-setup          Skip prerequisite checks"
-            echo "  --region REGION       AWS region (default: us-east-1)"
+            echo "  --skip-setup          Skip prerequisite checks and infrastructure deployment"
             echo "  --destroy-infra       Destroy CDK infrastructure and exit"
+            echo "  -h, --help            Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0                           # Full setup and demo"
+            echo "  $0 --skip-setup              # Skip setup, use existing infrastructure"
+            echo "  $0 --destroy-infra           # Clean up infrastructure"
+            echo ""
+            echo "Region Configuration:"
+            echo "  The script uses your configured AWS region from:"
+            echo "  - AWS CLI configuration (aws configure get region)"
+            echo "  - Or AWS_DEFAULT_REGION environment variable"
+            echo ""
+            echo "  If no region is configured, the script will fail with an error."
+            echo "  Configure your region: aws configure set region <your-region>"
             echo ""
             echo "Authentication: Uses AWS IAM credentials (no API key needed)"
             echo "Infrastructure: Deployed via AWS CDK"
+            echo ""
             exit 0
             ;;
         *)
@@ -77,9 +90,6 @@ if [[ "$SKIP_SETUP" != "true" ]]; then
     echo "[SETUP] Running shared prerequisites check..."
     echo ""
     
-    # Set region first
-    aws configure set region "$REGION"
-    
     # Call shared prerequisites script with required checks
     "$SHARED_SCRIPTS_DIR/check-prerequisites.sh" \
         --required-service "agentcore-browser" \
@@ -101,6 +111,14 @@ if [[ "$SKIP_SETUP" != "true" ]]; then
     echo ""
     echo "[SETUP] Complete!"
     echo ""
+fi
+
+# Get region from AWS CLI configuration
+REGION=$(aws configure get region 2>/dev/null)
+if [[ -z "$REGION" ]]; then
+    echo "ERROR: AWS region not configured"
+    echo "Please configure your AWS region: aws configure set region <your-region>"
+    exit 1
 fi
 
 # ============================================================
@@ -126,8 +144,9 @@ fi
 # Get outputs from CloudFormation
 echo ""
 echo "Getting stack outputs..."
-BROWSER_ID=$(aws cloudformation describe-stacks --stack-name LegacySystemAutomationAgentCore --region "$REGION" --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='BrowserId'].OutputValue" --output text 2>/dev/null)
-RECORDINGS_BUCKET=$(aws cloudformation describe-stacks --stack-name LegacySystemAutomationAgentCore --region "$REGION" --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='RecordingsBucketName'].OutputValue" --output text 2>/dev/null)
+STACK_NAME="LegacySystemAutomationAgentCore-$REGION"
+BROWSER_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='BrowserId'].OutputValue" --output text 2>/dev/null)
+RECORDINGS_BUCKET=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" --no-cli-pager --query "Stacks[0].Outputs[?OutputKey=='RecordingsBucketName'].OutputValue" --output text 2>/dev/null)
 
 if [[ -z "$BROWSER_ID" ]] || [[ -z "$RECORDINGS_BUCKET" ]]; then
     echo "      ❌ Failed to get stack outputs"
@@ -169,7 +188,7 @@ fi
 echo ""
 
 # ============================================================
-# STEP 4: Display AWS Console URLs
+# STEP 5: Display AWS Console URLs
 # ============================================================
 echo "------------------------------------------------------------"
 echo "[AWS CONSOLE] Monitor your automation"
@@ -186,7 +205,7 @@ echo "     → View workflow execution history and step details"
 echo ""
 
 # ============================================================
-# STEP 5: Run Demo
+# STEP 6: Run Demo
 # ============================================================
 echo "------------------------------------------------------------"
 echo "[DEMO] Running automation on Nova Act Gym (Cloud Browser)..."

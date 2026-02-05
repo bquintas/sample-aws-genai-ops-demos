@@ -191,9 +191,6 @@ The automation performs a 9-step ticket creation workflow:
 ### Demo Options
 
 ```powershell
-# Different region
-.\run-demo.ps1 -Region "us-west-2"
-
 # Skip setup (if already configured)
 .\run-demo.ps1 -SkipSetup
 
@@ -203,10 +200,11 @@ The automation performs a 9-step ticket creation workflow:
 
 ```bash
 # Bash equivalents
-./run-demo.sh --region "us-west-2"
 ./run-demo.sh --skip-setup
 ./run-demo.sh --destroy-infra
 ```
+
+**Note**: Region is automatically detected from your AWS CLI configuration (`aws configure get region`) or `AWS_DEFAULT_REGION` environment variable.
 
 ## Infrastructure
 

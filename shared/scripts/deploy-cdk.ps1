@@ -12,6 +12,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Set PYTHONPATH to include shared utilities
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$env:PYTHONPATH = $repoRoot
+
 # Get AWS account and region
 $accountId = aws sts get-caller-identity --query Account --output text --no-cli-pager
 $currentRegion = aws configure get region
