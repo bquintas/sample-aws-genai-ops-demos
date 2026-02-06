@@ -154,8 +154,13 @@ Write-Host "Region: $region" -ForegroundColor Cyan
 Write-Host "User Pool ID: $userPoolId" -ForegroundColor Cyan
 Write-Host "User Pool Client ID: $userPoolClientId" -ForegroundColor Cyan
 Write-Host "`nNext Steps:" -ForegroundColor Yellow
-Write-Host "  1. Create an admin user via AWS CLI (see 'Admin User Management' section in README.md)" -ForegroundColor Gray
-Write-Host "     Example: aws cognito-idp admin-create-user --user-pool-id $userPoolId --username admin ..." -ForegroundColor DarkGray
+Write-Host "  1. Create an admin user (copy-paste these two commands):" -ForegroundColor Gray
+Write-Host ""
+Write-Host "     aws cognito-idp admin-create-user --user-pool-id $userPoolId --username admin --user-attributes Name=email,Value=admin@company.com Name=email_verified,Value=true --message-action SUPPRESS" -ForegroundColor White
+Write-Host ""
+Write-Host "     aws cognito-idp admin-set-user-password --user-pool-id $userPoolId --username admin --password ""YourSecurePassword123!"" --permanent" -ForegroundColor White
+Write-Host ""
+Write-Host "     (Replace the email and password with your own values)" -ForegroundColor DarkGray
 Write-Host "  2. Sign in at the Website URL above with your created admin credentials" -ForegroundColor Gray
 Write-Host "  3. Initial extraction is running in background - results will appear in DynamoDB" -ForegroundColor Gray
 Write-Host "  4. View extracted data via admin UI or query DynamoDB table aws-services-lifecycle" -ForegroundColor Gray

@@ -8,7 +8,7 @@ import boto3
 from decimal import Decimal
 from typing import Dict, List, Any
 
-from shared.utils import get_region
+from aws_utils import get_region
 
 
 # Initialize DynamoDB using deployment region

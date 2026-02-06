@@ -139,7 +139,7 @@ def send_extraction_notification(result: dict) -> None:
     try:
         import boto3
         import os
-        from shared.utils import get_region
+        from aws_utils import get_region
         
         # Only send notifications for scheduled extractions
         topic_arn = os.environ.get('NOTIFICATION_TOPIC_ARN')
