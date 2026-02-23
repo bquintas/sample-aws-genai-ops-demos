@@ -378,7 +378,7 @@ Return JSON format:
             str: LLM response text
         """
         
-        model_id = "us.amazon.nova-lite-v1:0"
+        model_id = "global.amazon.nova-2-lite-v1:0"
         
         # Prepare the request body for Nova Lite
         request_body = {

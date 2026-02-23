@@ -6,7 +6,7 @@ This system transforms manual deprecation tracking into an automated, scalable, 
 
 ## 🚀 Key Features
 
-- **🤖 Hybrid AI Extraction**: BeautifulSoup HTML parsing + Amazon Nova Lite AI normalization for reliable data extraction
+- **🤖 Hybrid AI Extraction**: BeautifulSoup HTML parsing + Amazon Nova 2 Lite AI normalization for reliable data extraction
 - **⚡ Fast Extrant Status Categorization**: Automatically categorizes items as deprecated, extended_support, or end_of_life based on dates
 - **🎛️ Admin Interface**: React-based UI with Cloudscape Design System for service configuration and monitoring
 - **📊 Real-time Dashboard**: Live metrics showing status breakdown (75 deprecated, 19 extended support, 2 end of life)
@@ -38,9 +38,9 @@ This system transforms manual deprecation tracking into an automated, scalable, 
                                                       ▼
                         ┌─────────────────────────────────────────────────────────────────┐
                         │                   Runtime Stack                                 │
-                        │  AgentCore Runtime (Hybrid Extraction + Amazon Nova Lite)       │
+                        │  AgentCore Runtime (Hybrid Extraction + Amazon Nova 2 Lite)     │
                         │  ├─ Container: ECR Image (CodeBuild ARM64)                      │
-                        │  ├─ AI Model: Amazon Nova Lite                                  │
+                        │  ├─ AI Model: Amazon Nova 2 Lite                                │
                         │  ├─ Hybrid Approach: BeautifulSoup + LLM normalization          │
                         │  └─ Environment: Table names from Data Stack                    │
                         └─────────────────────────────────────────────────────────────────┘
@@ -60,7 +60,7 @@ This system transforms manual deprecation tracking into an automated, scalable, 
 
 Simplified Flow:
 1. Admin User ──▶ React UI ──▶ Cognito User Pool ──▶ Identity Pool ──▶ AWS Credentials ──▶ AgentCore (IAM)
-2. AgentCore ──▶ Hybrid Extraction (BeautifulSoup + Amazon Nova Lite) ──▶ DynamoDB
+2. AgentCore ──▶ Hybrid Extraction (BeautifulSoup + Amazon Nova 2 Lite) ──▶ DynamoDB
 3. All operations log to CloudWatch, traced by X-Ray
 ```
 
@@ -73,7 +73,7 @@ Simplified Flow:
 4. **Data Storage**: DynamoDB stores structured deprecation data with intelligent status indexing
 
 **Key Components:**
-- **🤖 Hybrid Data Extraction**: BeautifulSoup HTML parsing + Amazon Nova Lite AI normalization for 80-90% success rates
+- **🤖 Hybrid Data Extraction**: BeautifulSoup HTML parsing + Amazon Nova 2 Lite AI normalization for 80-90% success rates
 - **🧠 Smart Status Logic**: Analyzes `target_retirement_date` and other date fields to categorize lifecycle stages
 - **🎛️ Service Configuration**: JSON-driven service definitions in `scripts/service_configs.json`
 - **📊 Real-time Dashboard**: Live status breakdown showing actionable categorization of deprecation urgency
@@ -413,7 +413,7 @@ The agent is organized into modular components with clear separation of concerns
 **`data_extractor.py`** - Low-level hybrid extraction engine
 - `DataExtractor` class with hybrid HTML + AI approach
 - `_fetch_html_tables()` - BeautifulSoup HTML parsing for structured data
-- `_llm_extract_deprecation_data()` - Amazon Nova Lite AI normalization
+- `_llm_extract_deprecation_data()` - Amazon Nova 2 Lite AI normalization
 - `_build_extraction_prompt()` - Service-specific AI prompt generation
 - **Role**: Pure data extraction mechanics
 
@@ -517,7 +517,7 @@ The `deploy-all.ps1` script orchestrates the complete deployment:
 3. AgentCore queries DynamoDB for enabled service configurations
 4. AgentCore processes all enabled services with refresh_origin: "Auto"
 5. AgentCore executes agent in isolated container (microVM)
-6. Agent fetches AWS documentation and extracts deprecation data using Amazon Nova Lite
+6. Agent fetches AWS documentation and extracts deprecation data using Amazon Nova 2 Lite
 7. Agent stores structured data in DynamoDB lifecycle table
 8. Orchestrator collects results and sends SNS notification with summary
 
@@ -701,7 +701,7 @@ Comprehensive UI for manual operations and monitoring:
 
 ### 2. Agent (`agent/main.py`)
 - AgentCore entry point with request routing
-- Uses Amazon Nova Lite for AI normalization
+- Uses Amazon Nova 2 Lite for AI normalization
 - Hybrid extraction: BeautifulSoup + LLM
 - Direct DynamoDB integration for data storage
 
@@ -1303,7 +1303,7 @@ Approximate monthly costs for AWS Services Lifecycle Tracker:
   - With daily scheduled extractions: ~$3-5/month (active only during extraction)
   - With hourly scheduled extractions: ~$72/month (24/7 active)
 - **Bedrock Model Usage**: Pay-per-token
-  - Amazon Nova Lite: ~$0.00006 per 1K input tokens, ~$0.00024 per 1K output tokens
+  - Amazon Nova 2 Lite (Global Cross-region Inference): $0.30 per 1M input tokens, $2.50 per 1M output tokens (Standard tier)
   - Typical usage: $2-5/month depending on extraction frequency and service count
 - **DynamoDB**: On-demand pricing
   - Write requests: $1.25 per million write request units
