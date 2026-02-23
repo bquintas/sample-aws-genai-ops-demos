@@ -28,7 +28,7 @@ else
 fi
 
 # Get region for stack names
-region=$AWS_REGION
+region=$(aws configure get region)
 
 # Deploy infrastructure stack
 echo -e "\n\033[0;33mDeploying infrastructure stack...\033[0m"

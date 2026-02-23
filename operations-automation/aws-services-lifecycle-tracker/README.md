@@ -88,6 +88,9 @@ Simplified Flow:
   - Check your version: `aws --version`
   - AgentCore support was added in AWS CLI v2.31.13 (January 2025)
 - **Node.js 22+** installed
+- **AWS CDK** installed globally ([Installation Guide](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html))
+  - Install: `npm install -g aws-cdk`
+  - Check your version: `cdk --version`
 - **Python 3.8+** installed (for configuration scripts)
 - **AWS credentials** configured with permissions for CloudFormation, Lambda, S3, ECR, CodeBuild, DynamoDB, Cognito, and IAM via:
   - `aws configure` (access key/secret key)
