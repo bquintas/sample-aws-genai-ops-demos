@@ -91,9 +91,18 @@ fi
 if [ "$SKIP_BOOTSTRAP" = false ]; then
     echo ""
     echo -e "\033[0;33mEnsuring CDK bootstrap is up to date...\033[0m"
-    npx -y cdk bootstrap "aws://$ACCOUNT_ID/$CURRENT_REGION" --no-cli-pager > /dev/null 2>&1
+    BOOTSTRAP_OUTPUT=$(npx -y cdk bootstrap "aws://$ACCOUNT_ID/$CURRENT_REGION" --no-cli-pager 2>&1)
     if [ $? -ne 0 ]; then
         echo -e "\033[0;31m      ❌ CDK bootstrap failed\033[0m"
+        echo ""
+        echo "Bootstrap error output:"
+        echo "$BOOTSTRAP_OUTPUT"
+        echo ""
+        echo "Common causes:"
+        echo "  - Insufficient IAM permissions for CDK bootstrap"
+        echo "  - Account restrictions on CloudFormation stack creation"
+        echo "  - Missing permissions for S3 bucket or ECR repository creation"
+        echo ""
         exit 1
     fi
     echo -e "\033[0;32m      ✓ CDK bootstrap is up to date\033[0m"
