@@ -91,8 +91,12 @@ fi
 if [ "$SKIP_BOOTSTRAP" = false ]; then
     echo ""
     echo -e "\033[0;33mEnsuring CDK bootstrap is up to date...\033[0m"
+    set +e  # Temporarily disable exit on error to capture bootstrap failure
     BOOTSTRAP_OUTPUT=$(npx -y cdk bootstrap "aws://$ACCOUNT_ID/$CURRENT_REGION" --no-cli-pager 2>&1)
-    if [ $? -ne 0 ]; then
+    BOOTSTRAP_EXIT_CODE=$?
+    set -e  # Re-enable exit on error
+    
+    if [ $BOOTSTRAP_EXIT_CODE -ne 0 ]; then
         echo -e "\033[0;31m      ❌ CDK bootstrap failed\033[0m"
         echo ""
         echo "Bootstrap error output:"
